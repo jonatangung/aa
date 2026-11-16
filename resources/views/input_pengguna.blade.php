@@ -46,8 +46,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="fw-semibold">Foto Profil</label>
-                    <input type="file" name="foto" class="form-control" accept="image/*" required>
+                    <label class="fw-semibold">Foto</label>
+                    <input type="file" name="foto" class="form-control" accept="image/*">
                 </div>
 
                 <button class="btn btn-primary" type="submit">Simpan</button>

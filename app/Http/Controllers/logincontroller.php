@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 //----- LoginController: menangani halaman login, logout, registrasi, dan dashboard home
 class LoginController extends Controller
@@ -84,9 +85,13 @@ class LoginController extends Controller
     //----- simpanRegister(): Menyimpan user baru dari form registrasi (role admin)
     public function simpanRegister(Request $request)
     {
-        $request->validate([
-            'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+          $file = $request->file('foto');
+          $filename = time() . '_' . $file->getClientOriginalName();
+          $file->move(public_path('uploads'), $filename);
+          $fotoPath = $filename;
+        }
 
         DB::table('users')->insert([
             'nama' => $request->u,
@@ -94,7 +99,7 @@ class LoginController extends Controller
             'password' => $request->p,
             'role' => 'admin',
             'no_hp' => null,
-            'foto' => $this->simpanFoto($request->file('foto')),
+            'foto' => $fotoPath,
             'is_active' => 0,
             'created_at' => now(),
             'updated_at' => now(),

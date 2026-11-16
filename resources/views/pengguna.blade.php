@@ -33,9 +33,9 @@
                             <td><?= $no++ ?></td>
                             <td class="text-center">
                                 @if ($value->foto)
-                                    <img src="{{ asset('uploads/users/' . $value->foto) }}" alt="Foto" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
+                                    <img src="{{ asset('uploads/' . $value->foto) }}" width="50" height="50" class="rounded">
                                 @else
-                                    <img src="{{ asset('assets/img/default-user.png') }}" alt="Foto" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($value->nama) }}&background=random'">
+                                    <span class="text-muted">-</span>
                                 @endif
                             </td>
                             <td><?= $value->nama ?></td>
@@ -45,7 +45,7 @@
                             <td><?= $value->is_active ? 'Aktif' : 'Tidak Aktif' ?></td>
                             <td>
                                 <a href="/edit_users/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
-                               
+
                             </td>
                         </tr>
                     @endforeach

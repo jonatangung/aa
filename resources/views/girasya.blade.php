@@ -39,10 +39,10 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="foto" class="form-label fw-semibold">Foto Profil:</label>
-                        <input type="file" name="foto" id="foto" class="form-control" accept="image/*" required>
+                        <label for="profile_picture" class="form-label fw-semibold">Foto Profil:</label>
+                        <input type="file" name="foto" id="foto" class="form-control" accept="image/*" >
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary w-100 mb-2 py-2 fw-semibold">Daftar</button>
                     
                     <a href="/login" class="btn btn-outline-secondary w-100 py-2 fw-semibold">Sudah Punya Akun?</a>

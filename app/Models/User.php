@@ -35,7 +35,6 @@ class User extends Authenticatable
         'password', //----- password (otomatis di-hash karena cast 'hashed' di bawah)
         'role', //----- role user: admin / mekanik / dll
         'no_hp', //----- nomor HP
-        'foto', //----- nama file foto profil
         'is_active', //----- status aktif (1=aktif, 0=nonaktif)
     ];
 

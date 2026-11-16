@@ -39,16 +39,12 @@
                     <input type="text" name="no_hp" value="{{ $row->no_hp }}" class="form-control">
                 </div>
 
-
                 <div class="mb-3">
                     <label class="fw-semibold">Foto Profil</label>
-                    @if ($row->foto)
-                        <div class="mb-2">
-                            <img src="{{ asset('uploads/users/' . $row->foto) }}" alt="Foto" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
-                        </div>
-                    @endif
                     <input type="file" name="foto" class="form-control" accept="image/*">
-                    <small class="text-muted">Kosongkan jika tidak ingin mengubah foto.</small>
+                    @if ($row->foto)
+                        <img src="{{ asset('uploads/' . $row->foto) }}" width="100" class="mt-2 rounded">
+                    @endif
                 </div>
 
                 <button class="btn btn-warning" type="submit">Perbarui</button>

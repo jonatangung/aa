@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 //----- Controller.php: class induk (parent) untuk SEMUA controller di project ini
-//----- berisi helper bersama: upload foto, generate PDF, dan query detail jasa per servis
+//----- berisi helper bersama: generate PDF dan query detail jasa per servis
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests; //----- trait: method bantu untuk pengecekan hak akses (authorize)
 use Illuminate\Foundation\Validation\ValidatesRequests; //----- trait: method bantu untuk validasi form ($this->validate)
@@ -36,34 +36,6 @@ class Controller extends BaseController
             )
             ->get()
             ->groupBy('servis_id');
-    }
-
-    //----- simpanFoto(): Helper — menyimpan file foto upload ke public/uploads/users dan mengembalikan nama filenya
-    protected function simpanFoto($file)
-    {
-        if (!$file) {
-            return null;
-        }
-
-        $folder = public_path('uploads/users');
-        if (!is_dir($folder)) {
-            mkdir($folder, 0777, true);
-        }
-
-        $extension = strtolower($file->extension() ?: $file->getClientOriginalExtension() ?: 'jpg');
-        $namaFile = uniqid('foto_') . '.' . $extension;
-        $file->move($folder, $namaFile);
-
-        return $namaFile;
-    }
-
-    //----- hapusFoto(): Helper — menghapus file foto dari folder uploads jika ada
-    protected function hapusFoto($namaFile)
-    {
-        $path = public_path('uploads/users/' . $namaFile);
-        if (file_exists($path)) {
-            unlink($path);
-        }
     }
 
     //----- pdfTable(): Helper — membangun tabel HTML lalu mengunduhnya sebagai PDF

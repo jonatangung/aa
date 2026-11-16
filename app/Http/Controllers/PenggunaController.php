@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\PenggunaExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 //----- PenggunaController: menangani CRUD data pengguna/pengguna sistem beserta export PDF/Excel
 class PenggunaController extends Controller
@@ -24,7 +25,7 @@ class PenggunaController extends Controller
     private function penggunaData()
     {
         return DB::table('users')
-            ->select('id', 'nama', 'email', 'role', 'no_hp', 'foto', 'is_active', 'created_at')
+            ->select('id', 'nama', 'email', 'role', 'no_hp', 'is_active', 'foto', 'created_at')
             ->get();
     }
 
@@ -36,14 +37,18 @@ class PenggunaController extends Controller
         return view('input_pengguna');
     }
 
-    //----- simpanPengguna(): Menyimpan pengguna baru beserta upload foto
+    //----- simpanPengguna(): Menyimpan pengguna baru
     public function simpanPengguna(Request $request)
     {
         if (!session('u')) return redirect('/');
 
-        $request->validate([
-            'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
+            $fotoPath = $filename;
+        }
 
         DB::table('users')->insert([
             'nama' => $request->nama,
@@ -51,8 +56,8 @@ class PenggunaController extends Controller
             'password' => $request->password,
             'role' => $request->role,
             'no_hp' => $request->no_hp,
+            'foto' => $fotoPath,
             'is_active' => 0,
-            'foto' => $this->simpanFoto($request->file('foto')),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -70,16 +75,13 @@ class PenggunaController extends Controller
         ]);
     }
 
-    //----- updatePengguna(): Memperbarui data pengguna; ganti foto jika diupload dan sinkronkan session jika mengedit diri sendiri
+    //----- updatePengguna(): Memperbarui data pengguna dan sinkronkan session jika mengedit diri sendiri
     public function updatePengguna(Request $request, $id)
     {
         if (!session('u')) return redirect('/');
 
-        $request->validate([
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
-
         $user = DB::table('users')->where('id', $id)->first();
+
         $data = [
             'nama' => $request->nama,
             'email' => $request->email,
@@ -89,34 +91,35 @@ class PenggunaController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            if ($user && $user->foto) {
-                $this->hapusFoto($user->foto);
+            $file = $request->file('foto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
+            $data['foto'] = $filename;
+
+            if ($user->foto && file_exists(public_path('uploads/' . $user->foto))) {
+                unlink(public_path('uploads/' . $user->foto));
             }
-            $data['foto'] = $this->simpanFoto($request->file('foto'));
         }
 
         DB::table('users')->where('id', $id)->update($data);
 
-        if ($user && (int) session('id_user') === (int) $id) {
+        if ((int) session('id_user') === (int) $id) {
+            $userUpdate = DB::table('users')->where('id', $id)->first();
             session([
                 'u' => $request->nama,
                 'role' => $request->role,
-                'foto' => $data['foto'] ?? $user->foto,
+                'foto' => $userUpdate->foto,
             ]);
         }
 
         return redirect('/pengguna');
     }
 
-    //----- hapusPengguna(): Menghapus foto lalu menghapus data pengguna berdasarkan id
+    //----- hapusPengguna(): Menghapus data pengguna berdasarkan id
     public function hapusPengguna($id)
     {
         if (!session('u')) return redirect('/');
 
-        $user = DB::table('users')->where('id', $id)->first();
-        if ($user && $user->foto) {
-            $this->hapusFoto($user->foto);
-        }
         DB::table('users')->where('id', $id)->delete();
         return redirect('/pengguna');
     }

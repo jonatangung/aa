@@ -16,20 +16,6 @@
                 <form method="POST" action="/profil" enctype="multipart/form-data">
                     @csrf
 
-                    <div class="mb-3 text-center">
-                        @if ($user->foto)
-                            <img src="{{ asset('uploads/users/' . $user->foto) }}" alt="Foto" class="rounded-circle mb-2" style="width: 90px; height: 90px; object-fit: cover;">
-                        @else
-                            <img src="{{ asset('assets/img/profile-img.jpg') }}" alt="Foto" class="rounded-circle mb-2" style="width: 90px; height: 90px; object-fit: cover;">
-                        @endif
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Foto Profil</label>
-                        <input type="file" name="foto" class="form-control" accept="image/*">
-                        <small class="text-muted">Kosongkan jika tidak ingin mengubah foto.</small>
-                    </div>
-
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Nama Pengguna</label>
                         <input type="text" name="nama" class="form-control" value="{{ old('nama', $user->nama) }}" required>
@@ -48,6 +34,14 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Password Baru</label>
                         <input type="password" name="password" class="form-control" minlength="6" placeholder="Kosongkan jika tidak ingin mengganti password">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Foto Profil</label>
+                        <input type="file" name="foto" class="form-control" accept="image/*">
+                        @if ($user->foto)
+                            <img src="{{ asset('uploads/' . $user->foto) }}" width="100" class="mt-2 rounded">
+                        @endif
                     </div>
 
                     <button type="submit" class="btn btn-primary">Simpan Profil</button>

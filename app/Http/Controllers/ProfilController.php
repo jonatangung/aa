@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 //----- ProfilController: menangani halaman dan update profil user yang sedang login
 class ProfilController extends Controller
@@ -20,14 +21,10 @@ class ProfilController extends Controller
         return view('profil', ['user' => $user]);
     }
 
-    //----- updateProfil(): Memperbarui profil user sendiri (nama, email, no_hp, password opsional, foto opsional)
+    //----- updateProfil(): Memperbarui profil user sendiri (nama, email, no_hp, password opsional)
     public function updateProfil(Request $request)
     {
         if (!session('u')) return redirect('/');
-
-        $request->validate([
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
 
         $user = DB::table('users')->where('nama', session('u'))->first();
 
@@ -47,16 +44,22 @@ class ProfilController extends Controller
         }
 
         if ($request->hasFile('foto')) {
-            if ($user->foto) {
-                $this->hapusFoto($user->foto);
+            $file = $request->file('foto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
+            $data['foto'] = $filename;
+
+            if ($user->foto && file_exists(public_path('uploads/' . $user->foto))) {
+                unlink(public_path('uploads/' . $user->foto));
             }
-            $data['foto'] = $this->simpanFoto($request->file('foto'));
         }
 
         DB::table('users')->where('id', $user->id)->update($data);
+
+        $userUpdate = DB::table('users')->where('id', $user->id)->first();
         session([
             'u' => $request->nama,
-            'foto' => $data['foto'] ?? $user->foto,
+            'foto' => $userUpdate->foto,
         ]);
 
         return redirect('/profil');

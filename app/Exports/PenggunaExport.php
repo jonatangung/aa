@@ -25,7 +25,6 @@ class PenggunaExport implements FromCollection, WithHeadings
                 $row->email, //----- Email
                 $row->role, //----- Role (admin/mekanik/dll)
                 $row->no_hp, //----- No HP
-                $row->foto ?: '-', //----- Nama file foto (kosong -> '-')
                 $row->is_active ? 'Aktif' : 'Tidak Aktif', //----- Status aktif/tidak
                 $row->created_at, //----- Tanggal bergabung
             ];
@@ -41,7 +40,6 @@ class PenggunaExport implements FromCollection, WithHeadings
             'Email',
             'Role',
             'No HP',
-            'Foto',
             'Status',
             'Tanggal Bergabung',
         ];

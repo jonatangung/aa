@@ -8,15 +8,16 @@
 </head>
 <body class="bg-light">
 
+    {{-- Halaman register user baru. Form dikirim ke LoginController method simpanRegister() --}}
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        
+
         <div class="card shadow border-0 p-4" style="width: 100%; max-width: 400px; border-radius: 12px;">
             <div class="card-body">
-                @if ($errors->any())
+                <?php if ($errors->any()) { ?>
                     <div class="alert alert-danger">
                         {{ $errors->first() }}
                     </div>
-                @endif
+                <?php } ?>
 
                 <h2 class="text-center fw-bold mb-4 text-dark">SIGN UP</h2>
                 

@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form tambah pelanggan baru. Data dikirim ke PelangganController method aksi_tplg() --}}
 
     <h1 class="mb-4 fw-bold">Input Pelanggan</h1>
 

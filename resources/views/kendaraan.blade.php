@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman daftar kendaraan. Data $rows dikirim dari KendaraanController method kendaraan() --}}
 
     <h1 class="mb-3">Data Kendaraan</h1>
 
@@ -13,6 +14,7 @@
         </div>
     </div>
 
+    {{-- Tabel daftar kendaraan --}}
     <div class="card mt-3">
         <div class="card-body table-responsive">
             <h5 class="card-title">Data Kendaraan</h5>
@@ -32,18 +34,20 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    {{-- $rows = kumpulan data kendaraan dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($rows as $value)
                         <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= $value->no_polisi ?></td>
-                            <td><?= $value->nama_pelanggan ?></td>
-                            <td><?= $value->merk ?></td>
-                            <td><?= $value->model ?></td>
-                            <td><?= $value->tahun ?></td>
-                            <td><?= $value->warna ?></td>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
+                            <td>{{ $value->no_polisi }}</td>
+                            <td>{{ $value->nama_pelanggan }}</td>
+                            <td>{{ $value->merk }}</td>
+                            <td>{{ $value->model }}</td>
+                            <td>{{ $value->tahun }}</td>
+                            <td>{{ $value->warna }}</td>
                             <td>
-                                <a href="/edit_kendaraan/<?= $value->id ?>" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="/hapus_kendaraan/<?= $value->id ?>" method="POST" class="d-inline">
+                                <a href="/edit_kendaraan/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="/hapus_kendaraan/{{ $value->id }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                 </form>

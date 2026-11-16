@@ -12,15 +12,16 @@ class SupplierController extends Controller
 {
     // ==================== SUPPLIER ====================
 
-    //----- supplier(): Menampilkan halaman daftar supplier/barang
+    //----- supplier(): Menampilkan halaman daftar supplier/barang. Mengirim data $rows ke view supplier
     public function supplier()
     {
         if (!session('u')) return redirect('/');
 
+        // $rows ini yang dipakai di view supplier sebagai $rows
         return view('supplier', ['rows' => $this->supplierData()]);
     }
 
-    //----- supplierData(): Mengambil seluruh data supplier/barang dari database (private)
+    //----- supplierData(): Mengambil seluruh data supplier/barang dari database (private). get() = ambil semua data
     private function supplierData()
     {
         return DB::table('supplier')->get();
@@ -34,17 +35,29 @@ class SupplierController extends Controller
         return view('input_supplier');
     }
 
-    //----- simpanSupplier(): Menyimpan supplier baru beserta catatan stok masuk awal jika ada
+    //----- simpanSupplier(): Menyimpan supplier baru beserta catatan stok masuk awal jika ada. insertGetId() = simpan data dan ambil id baru
     public function simpanSupplier(Request $request)
     {
         if (!session('u')) return redirect('/');
+
+        if ($request->harga == '') {
+            $harga = 0;
+        } else {
+            $harga = $request->harga;
+        }
+
+        if ($request->tanggal_masuk == '') {
+            $tanggalMasuk = now()->toDateString();
+        } else {
+            $tanggalMasuk = $request->tanggal_masuk;
+        }
 
         $supplierId = DB::table('supplier')->insertGetId([
             'nama_supplier' => $request->nama_supplier,
             'nama_barang' => $request->nama_barang,
             'stok' => 0,
-            'harga' => $request->harga ?: 0,
-            'tanggal_masuk' => $request->tanggal_masuk ?: now()->toDateString(),
+            'harga' => $harga,
+            'tanggal_masuk' => $tanggalMasuk,
             'kontak_person' => $request->kontak_person,
             'no_hp' => $request->no_hp,
             'email' => $request->email,
@@ -54,11 +67,16 @@ class SupplierController extends Controller
         ]);
 
         if ((int) $request->stok > 0) {
+            if ($request->tanggal_masuk == '') {
+                $tanggalStok = now()->toDateString();
+            } else {
+                $tanggalStok = $request->tanggal_masuk;
+            }
             DB::table('stok_barang')->insert([
                 'supplier_id' => $supplierId,
                 'jenis' => 'masuk',
                 'jumlah' => $request->stok,
-                'tanggal' => $request->tanggal_masuk ?: now()->toDateString(),
+                'tanggal' => $tanggalStok,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -67,17 +85,18 @@ class SupplierController extends Controller
         return redirect('/supplier');
     }
 
-    //----- editSupplier(): Menampilkan form edit supplier/barang berdasarkan id
+    //----- editSupplier(): Menampilkan form edit supplier/barang berdasarkan id. Mengirim data $row ke view edit_supplier
     public function editSupplier($id)
     {
         if (!session('u')) return redirect('/');
 
+        // $row ini yang dipakai di view edit_supplier sebagai $row
         return view('edit_supplier', [
             'row' => DB::table('supplier')->where('id', $id)->first(),
         ]);
     }
 
-    //----- updateSupplier(): Memperbarui data supplier dan mencatat selisih stok (masuk/keluar)
+    //----- updateSupplier(): Memperbarui data supplier dan mencatat selisih stok (masuk/keluar). update() = ubah data di database
     public function updateSupplier(Request $request, $id)
     {
         if (!session('u')) return redirect('/');
@@ -86,10 +105,16 @@ class SupplierController extends Controller
         $stokLama = (int) $supplier->stok;
         $stokBaru = (int) $request->stok;
 
+        if ($request->harga == '') {
+            $harga = 0;
+        } else {
+            $harga = $request->harga;
+        }
+
         DB::table('supplier')->where('id', $id)->update([
             'nama_supplier' => $request->nama_supplier,
             'nama_barang' => $request->nama_barang,
-            'harga' => $request->harga ?: 0,
+            'harga' => $harga,
             'tanggal_masuk' => $request->tanggal_masuk,
             'kontak_person' => $request->kontak_person,
             'no_hp' => $request->no_hp,
@@ -99,19 +124,26 @@ class SupplierController extends Controller
         ]);
 
         if ($stokBaru > $stokLama) {
+            $selisih = $stokBaru - $stokLama;
+            if ($request->tanggal_masuk == '') {
+                $tanggalStok = now()->toDateString();
+            } else {
+                $tanggalStok = $request->tanggal_masuk;
+            }
             DB::table('stok_barang')->insert([
                 'supplier_id' => $id,
                 'jenis' => 'masuk',
-                'jumlah' => $stokBaru - $stokLama,
-                'tanggal' => $request->tanggal_masuk ?: now()->toDateString(),
+                'jumlah' => $selisih,
+                'tanggal' => $tanggalStok,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         } elseif ($stokBaru < $stokLama) {
+            $selisih = $stokLama - $stokBaru;
             DB::table('stok_barang')->insert([
                 'supplier_id' => $id,
                 'jenis' => 'keluar',
-                'jumlah' => $stokLama - $stokBaru,
+                'jumlah' => $selisih,
                 'tanggal' => now()->toDateString(),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -121,7 +153,7 @@ class SupplierController extends Controller
         return redirect('/supplier');
     }
 
-    //----- hapusSupplier(): Menghapus data supplier/barang berdasarkan id
+    //----- hapusSupplier(): Menghapus data supplier/barang berdasarkan id. delete() = hapus data dari database
     public function hapusSupplier($id)
     {
         if (!session('u')) return redirect('/');

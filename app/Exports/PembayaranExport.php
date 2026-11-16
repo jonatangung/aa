@@ -15,23 +15,39 @@ class PembayaranExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data pembayaran menjadi baris-baris Excel
-    //----- $row->daftar_jasa: string rincian jasa yang sudah disusun di controller (misal: "Ganti Oli (1x), Cuci (2x)")
+    //----- $row->daftar_jasa: string rincian jasa yang sudah disusun di controller
     //----- number_format: format jumlah bayar menjadi Rupiah
-    //----- ucfirst(): huruf pertama metode jadi kapital
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            //----- Data kosong ditampilkan sebagai strip
+            $noServis = '-';
+            if ($row->no_servis != null && $row->no_servis != '') {
+                $noServis = $row->no_servis;
+            }
+
+            $keluhan = '-';
+            if ($row->keluhan != null && $row->keluhan != '') {
+                $keluhan = $row->keluhan;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->no_pembayaran, //----- Nomor pembayaran
-                $row->no_servis ?? '-', //----- No servis (kosong -> '-')
-                $row->keluhan ?? '-', //----- Keluhan (kosong -> '-')
+                $noServis, //----- No servis
+                $keluhan, //----- Keluhan
                 $row->daftar_jasa, //----- Rincian jasa yang dibayar
                 $row->tanggal, //----- Tanggal pembayaran
                 'Rp' . number_format($row->jumlah_bayar, 0, ',', '.'), //----- Jumlah bayar diformat Rupiah
-                ucfirst($row->metode ?: '-'), //----- Metode bayar dengan huruf kapital
+                $row->metode, //----- Metode bayar apa adanya
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

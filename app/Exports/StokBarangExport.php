@@ -19,20 +19,38 @@ class StokBarangExport implements FromCollection, WithHeadings
     //----- number_format: format harga & harga jual menjadi Rupiah
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            //----- Nama barang kosong -> strip
+            $namaBarang = '-';
+            if ($row->nama_barang != null && $row->nama_barang != '') {
+                $namaBarang = $row->nama_barang;
+            }
+
+            //----- Harga jual kosong -> anggap 0
+            $hargaJual = 0;
+            if ($row->harga_jual != null) {
+                $hargaJual = $row->harga_jual;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->nama_supplier, //----- Nama supplier
-                $row->nama_barang ?: '-', //----- Nama barang (kosong -> '-')
+                $namaBarang, //----- Nama barang
                 'Rp' . number_format($row->harga, 0, ',', '.'), //----- Harga modal diformat Rupiah
                 $row->stok, //----- Stok saat ini
                 $row->stok_masuk, //----- Total stok masuk
                 $row->tanggal_masuk, //----- Tanggal masuk terakhir
                 $row->stok_keluar, //----- Total stok keluar
                 $row->tanggal_keluar, //----- Tanggal keluar terakhir
-                'Rp' . number_format($row->harga_jual ?? 0, 0, ',', '.'), //----- Harga jual diformat Rupiah
+                'Rp' . number_format($hargaJual, 0, ',', '.'), //----- Harga jual diformat Rupiah
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

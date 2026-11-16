@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use Illuminate\Support\Collection; //----- Collection: class bawaan Laravel untuk mengelola data array/objek
-use Maatwebsite\Excel\Concerns\FromCollection; //----- FromCollection: interface Laravel Excel — menentukan sumber data export adalah Collection
+use Maatwebsite\Excel\Concerns\FromCollection; //----- FromCollection: interface Laravel Excel — sumber data export adalah Collection
 use Maatwebsite\Excel\Concerns\WithHeadings; //----- WithHeadings: interface Laravel Excel — menentukan baris judul (header) di Excel
 
 //----- class SupplierExport: menyiapkan data supplier/barang untuk diekspor ke file Excel
@@ -17,25 +17,37 @@ class SupplierExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): method wajib dari FromCollection — mengubah data database menjadi format baris Excel
-    //----- collect($this->rows): mengubah data menjadi Laravel Collection agar bisa di-map
-    //----- ->values(): mengurutkan ulang index agar mulai dari 0
-    //----- ->map(function...): mengiterasi tiap baris data dan mengubahnya menjadi array sesuai urutan kolom
-    //----- $index + 1: nomor urut otomatis (No) untuk tiap baris
     //----- number_format(..., 0, ',', '.'): memformat angka harga menjadi Rupiah (misal: Rp1.500.000)
-    //----- ?: '-': jika data kosong/null, tampilkan tanda strip agar tidak kosong di Excel
+    //----- Data kosong/null ditampilkan sebagai strip agar tidak kosong di Excel
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            $namaBarang = '-';
+            if ($row->nama_barang != null && $row->nama_barang != '') {
+                $namaBarang = $row->nama_barang;
+            }
+
+            $tanggalMasuk = '-';
+            if ($row->tanggal_masuk != null && $row->tanggal_masuk != '') {
+                $tanggalMasuk = $row->tanggal_masuk;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->nama_supplier, //----- Nama Supplier / PT
-                $row->nama_barang ?: '-', //----- Nama Barang (kosong -> '-')
+                $namaBarang, //----- Nama Barang
                 $row->stok, //----- Stok saat ini
                 'Rp' . number_format($row->harga, 0, ',', '.'), //----- Harga diformat Rupiah
-                $row->tanggal_masuk ?: '-', //----- Tanggal Masuk (kosong -> '-')
+                $tanggalMasuk, //----- Tanggal Masuk
                 $row->no_hp, //----- No HP supplier
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): method wajib dari WithHeadings — mengembalikan array judul kolom yang tampil di baris pertama Excel

@@ -45,9 +45,21 @@
     </style>
 </head>
 <body>
+    {{-- Halaman PDF laporan pendapatan. Data dikirim dari LaporanController method laporanPendapatan() --}}
+    <?php
+        //----- Tanggal filter kosong -> tampilkan teks awal/akhir
+        $tanggalDari = 'awal';
+        if ($from != null && $from != '') {
+            $tanggalDari = $from;
+        }
+        $tanggalSampai = 'akhir';
+        if ($to != null && $to != '') {
+            $tanggalSampai = $to;
+        }
+    ?>
     <h2>Laporan Pendapatan</h2>
     <p class="periode">
-        Periode: {{ $from ?: 'awal' }} s/d {{ $to ?: 'akhir' }}
+        Periode: {{ $tanggalDari }} s/d {{ $tanggalSampai }}
         | Dicetak: {{ now()->format('d/m/Y H:i') }}
     </p>
 
@@ -65,27 +77,27 @@
         </thead>
         <tbody>
             <?php $no = 1; ?>
+            {{-- $rows = daftar pembayaran dari controller, $row = satu baris data di setiap putaran --}}
             @foreach ($rows as $row)
-                @php $jasaList = $jasaByServis->get($row->servis_id, collect()); @endphp
                 <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= $row->no_pembayaran ?></td>
-                    <td><?= $row->no_servis ?? '-' ?></td>
-                    <td>
-                        @forelse ($jasaList as $jasa)
-                            <div><?= $jasa->nama_jasa ?> (<?= $jasa->jumlah ?>x) - Rp<?= number_format($jasa->jumlah * $jasa->harga, 0, ',', '.') ?></div>
-                        @empty
-                            -
-                        @endforelse
-                    </td>
-                    <td><?= $row->tanggal ?></td>
-                    <td class="angka">Rp<?= number_format($row->total_jasa, 0, ',', '.') ?></td>
-                    <td><?= ucfirst($row->metode) ?></td>
+                    <td>{{ $no }}</td>
+                    <?php $no++; ?>
+                    <td>{{ $row->no_pembayaran }}</td>
+                    <?php if ($row->no_servis == null || $row->no_servis == '') { ?>
+                        <td>-</td>
+                    <?php } else { ?>
+                        <td>{{ $row->no_servis }}</td>
+                    <?php } ?>
+                    {{-- $row->daftar_jasa = rincian jasa yang sudah dirangkai di controller --}}
+                    <td>{{ $row->daftar_jasa }}</td>
+                    <td>{{ $row->tanggal }}</td>
+                    <td class="angka">Rp{{ number_format($row->total_jasa, 0, ',', '.') }}</td>
+                    <td>{{ $row->metode }}</td>
                 </tr>
             @endforeach
             <tr>
                 <td class="total-label" colspan="5">Total Pendapatan</td>
-                <td class="total-nilai">Rp<?= number_format($totalPendapatan, 0, ',', '.') ?></td>
+                <td class="total-nilai">Rp{{ number_format($totalPendapatan, 0, ',', '.') }}</td>
                 <td></td>
             </tr>
         </tbody>

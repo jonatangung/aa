@@ -1,3 +1,4 @@
+{{-- Template utama: gabungkan header, sidebar (menu), isi halaman (content), dan footer --}}
 @include('header')
 
 @include('menu')

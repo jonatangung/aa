@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form edit pembayaran. Data $row, $servis, $detailJasa dikirim dari PembayaranController method editPembayaran(). Data dikirim ke method updatePembayaran() --}}
 
     <h1 class="mb-4 fw-bold">Edit Pembayaran</h1>
 
@@ -17,31 +18,37 @@
                 <div class="mb-3">
                     <label class="fw-semibold">Servis</label>
                     <select name="servis_id" class="form-control">
+                        {{-- $servis = kumpulan data servis dari controller, $item = satu baris data di setiap putaran --}}
                         @foreach ($servis as $item)
-                            <option value="{{ $item->id }}" @selected($row->servis_id == $item->id)>
-                                {{ $item->no_servis }} - {{ $item->keluhan }}
-                            </option>
+                            <option value="{{ $item->id }}" @selected($row->servis_id == $item->id)>{{ $item->no_servis }} - {{ $item->keluhan }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Tanggal</label>
-                    <input type="date" name="tanggal" value="{{ $row->tanggal ? date('Y-m-d', strtotime($row->tanggal)) : '' }}" class="form-control">
+                    <?php
+                        //----- Tanggal dari database perlu diubah formatnya dulu ke Y-m-d untuk input date
+                        $tanggal = '';
+                        if ($row->tanggal != null && $row->tanggal != '') {
+                            $tanggal = date('Y-m-d', strtotime($row->tanggal));
+                        }
+                    ?>
+                    <input type="date" name="tanggal" value="{{ $tanggal }}" class="form-control">
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Metode</label>
                     <select name="metode" class="form-control">
+                        {{-- $row->metode = metode pembayaran tersimpan di database --}}
                         @foreach (['tunai' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS', 'debit' => 'Debit', 'kredit' => 'Kredit'] as $value => $label)
-                            <option value="{{ $value }}" @selected($row->metode == $value)>
-                                {{ $label }}
-                            </option>
+                            <option value="{{ $value }}" @selected($row->metode == $value)>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                @if ($detailJasa->isNotEmpty())
+                <?php if ($detailJasa->isNotEmpty()) { ?>
+                    {{-- Tabel rincian jasa yang dipilih servis ini --}}
                     <div class="mb-3">
                         <label class="fw-semibold">Jasa Servis yang Dipilih</label>
                         <table class="table table-sm table-bordered mb-1">
@@ -54,6 +61,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {{-- $detailJasa = daftar jasa servis ini, $jasa = satu baris jasa di setiap putaran --}}
                                 @foreach ($detailJasa as $jasa)
                                     <tr>
                                         <td>{{ $jasa->nama_jasa }}</td>
@@ -66,11 +74,11 @@
                         </table>
                         <small class="text-muted">Jumlah bayar dihitung otomatis dari total jasa di atas. Ubah jasa melalui menu Servis.</small>
                     </div>
-                @endif
+                <?php } ?>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Jumlah Bayar</label>
-                    <input type="number" name="jumlah_bayar" value="{{ $row->jumlah_bayar }}" class="form-control" @if ($detailJasa->isNotEmpty()) readonly @endif>
+                    <input type="number" name="jumlah_bayar" value="{{ $row->jumlah_bayar }}" class="form-control" <?php if ($detailJasa->isNotEmpty()) { ?>readonly<?php } ?>>
                 </div>
 
                 <div class="mb-3">

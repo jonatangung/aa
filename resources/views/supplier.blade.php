@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman daftar supplier. Data $rows dikirim dari SupplierController method supplier() --}}
 
     <h1 class="mb-3">Data Supplier</h1>
 
@@ -13,6 +14,7 @@
         </div>
     </div>
 
+    {{-- Tabel daftar supplier --}}
     <div class="card mt-3">
         <div class="card-body table-responsive">
             <h5 class="card-title">Data Supplier</h5>
@@ -32,18 +34,28 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    {{-- $rows = kumpulan data supplier dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($rows as $value)
                         <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= $value->nama_supplier ?></td>
-                            <td><?= $value->nama_barang ?: '-' ?></td>
-                            <td><?= $value->stok ?></td>
-                            <td>Rp<?= number_format($value->harga, 0, ',', '.') ?></td>
-                            <td><?= $value->tanggal_masuk ?: '-' ?></td>
-                            <td><?= $value->no_hp ?></td>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
+                            <td>{{ $value->nama_supplier }}</td>
+                            <?php if ($value->nama_barang == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $value->nama_barang }}</td>
+                            <?php } ?>
+                            <td>{{ $value->stok }}</td>
+                            <td>Rp{{ number_format($value->harga, 0, ',', '.') }}</td>
+                            <?php if ($value->tanggal_masuk == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $value->tanggal_masuk }}</td>
+                            <?php } ?>
+                            <td>{{ $value->no_hp }}</td>
                             <td>
-                                <a href="/edit_supplier/<?= $value->id ?>" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="/hapus_supplier/<?= $value->id ?>" method="POST" class="d-inline">
+                                <a href="/edit_supplier/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="/hapus_supplier/{{ $value->id }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                 </form>

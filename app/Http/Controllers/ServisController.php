@@ -12,17 +12,19 @@ class ServisController extends Controller
 {
     // ==================== SERVIS ====================
 
-    //----- servis(): Menampilkan halaman daftar servis
+    //----- servis(): Menampilkan halaman daftar servis, data $rows dikirim ke view servis
     public function servis()
     {
         if (!session('u')) return redirect('/');
 
+        //----- $rows ini yang dipakai di view servis sebagai $rows
         return view('servis', ['rows' => $this->servisData()]);
     }
 
     //----- servisData(): Mengambil data servis lengkap dengan pelanggan, kendaraan, mekanik, daftar jasa, dan metode pembayaran (private)
     private function servisData()
     {
+        //----- Ambil data servis, digabung dengan tabel kendaraan, pelanggan, dan mekanik
         $rows = DB::table('servis')
             ->join('kendaraan', 'servis.kendaraan_id', '=', 'kendaraan.id')
             ->join('pelanggan', 'kendaraan.pelanggan_id', '=', 'pelanggan.id')
@@ -40,32 +42,60 @@ class ServisController extends Controller
             ->orderByDesc('servis.id')
             ->get();
 
-        $jasaByServis = DB::table('servis_jasa')
+        //----- Ambil semua jasa yang dipakai di semua servis
+        $jasaSemua = DB::table('servis_jasa')
             ->join('jasa_servis', 'servis_jasa.jasa_servis_id', '=', 'jasa_servis.id')
             ->select('servis_jasa.servis_id', 'jasa_servis.nama_jasa', 'servis_jasa.jumlah', 'servis_jasa.harga')
-            ->get()
-            ->groupBy('servis_id');
+            ->get();
 
-        $pembayaranByServis = DB::table('pembayaran')
+        //----- Kelompokkan jasa per servis_id supaya gampang dicari
+        $jasaByServis = [];
+        foreach ($jasaSemua as $jasa) {
+            $jasaByServis[$jasa->servis_id][] = $jasa;
+        }
+
+        //----- Ambil pembayaran, diurutkan terbaru dulu supaya yang terambil adalah pembayaran terakhir per servis
+        $pembayaranSemua = DB::table('pembayaran')
             ->orderByDesc('id')
-            ->get()
-            ->unique('servis_id')
-            ->keyBy('servis_id');
+            ->get();
 
+        $pembayaranByServis = [];
+        foreach ($pembayaranSemua as $bayar) {
+            //----- Kalau servis ini belum punya pembayaran tersimpan, simpan yang pertama (yang terbaru)
+            if (!isset($pembayaranByServis[$bayar->servis_id])) {
+                $pembayaranByServis[$bayar->servis_id] = $bayar;
+            }
+        }
+
+        //----- Tambahkan properti tambahan ke tiap baris untuk dipakai di view dan export
         foreach ($rows as $row) {
-            $jasa = $jasaByServis->get($row->id, collect());
-            $pembayaran = $pembayaranByServis->get($row->id);
-            $rawMetode = $pembayaran->metode ?? null;
+            $daftarJasa = [];
+            $totalJasa = 0;
 
-            $row->daftar_jasa = $jasa->isNotEmpty()
-                ? $jasa->pluck('nama_jasa')->implode(', ')
-                : '-';
-            $row->total_jasa = $jasa->sum(function ($item) {
-                return $item->jumlah * $item->harga;
-            });
-            $row->metode_pembayaran = $rawMetode
-                ? (strtolower($rawMetode) === 'qris' ? 'QRIS' : ucfirst($rawMetode))
-                : '-';
+            //----- Kumpulkan nama jasa dan hitung total harga
+            if (isset($jasaByServis[$row->id])) {
+                foreach ($jasaByServis[$row->id] as $jasa) {
+                    $daftarJasa[] = $jasa->nama_jasa;
+                    $totalJasa = $totalJasa + ($jasa->jumlah * $jasa->harga);
+                }
+            }
+
+            if (count($daftarJasa) > 0) {
+                $row->daftar_jasa = implode(', ', $daftarJasa);
+            } else {
+                $row->daftar_jasa = '-';
+            }
+            $row->total_jasa = $totalJasa;
+
+            //----- Ambil metode pembayaran, tampilkan apa adanya (kosong -> '-')
+            if (isset($pembayaranByServis[$row->id])) {
+                $row->metode_pembayaran = $pembayaranByServis[$row->id]->metode;
+            } else {
+                $row->metode_pembayaran = '-';
+            }
+            if ($row->metode_pembayaran == '') {
+                $row->metode_pembayaran = '-';
+            }
         }
 
         return $rows;
@@ -76,6 +106,7 @@ class ServisController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- Kirim semua data pilihan ke view input_servis
         return view('input_servis', [
             'pelanggan' => DB::table('pelanggan')->orderBy('nama')->get(),
             'kendaraan' => DB::table('kendaraan')->orderBy('no_polisi')->get(),
@@ -89,34 +120,45 @@ class ServisController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- Cari data user yang sedang login berdasarkan nama session
         $user = DB::table('users')->where('nama', session('u'))->first();
 
         if (!$user) {
             return redirect('/login');
         }
 
+        //----- Buat nomor servis otomatis: SRV001, SRV002, dst.
         $nomorTerakhir = DB::table('servis')
             ->where('no_servis', 'like', 'SRV%')
             ->pluck('no_servis');
 
         $angkaTerbesar = 0;
         foreach ($nomorTerakhir as $nomor) {
+            //----- Buang huruf, sisakan angka saja lalu bandingkan
             $angka = (int) preg_replace('/[^0-9]/', '', $nomor);
             if ($angka > $angkaTerbesar) {
                 $angkaTerbesar = $angka;
             }
         }
 
+        //----- Naikkan angka sampai dapat nomor yang belum dipakai
         do {
             $angkaTerbesar++;
             $noServis = 'SRV' . str_pad($angkaTerbesar, 3, '0', STR_PAD_LEFT);
         } while (DB::table('servis')->where('no_servis', $noServis)->exists());
 
+        //----- Mekanik itu opsional, kosong berarti null
+        $mekanikId = $request->mekanik_id;
+        if ($mekanikId == '') {
+            $mekanikId = null;
+        }
+
+        //----- Simpan data servis baru, kembalikan id-nya untuk dipakai di tabel lain
         $servisId = DB::table('servis')->insertGetId([
             'no_servis' => $noServis,
             'pelanggan_id' => $request->pelanggan_id,
             'kendaraan_id' => $request->kendaraan_id,
-            'mekanik_id' => $request->mekanik_id ?: null,
+            'mekanik_id' => $mekanikId,
             'user_id' => $user->id,
             'keluhan' => $request->keluhan,
             'status' => $request->status,
@@ -125,12 +167,20 @@ class ServisController extends Controller
         ]);
 
         $jumlahBayar = 0;
+        $jasaDipilih = $request->jasa_servis_id;
 
-        foreach ($request->jasa_servis_id ?: [] as $jasaId) {
+        //----- Kalau tidak ada jasa yang dicentang, anggap array kosong
+        if ($jasaDipilih == null) {
+            $jasaDipilih = [];
+        }
+
+        //----- Simpan tiap jasa yang dicentang ke tabel servis_jasa
+        foreach ($jasaDipilih as $jasaId) {
             $jasa = DB::table('jasa_servis')->where('id', $jasaId)->first();
 
             if ($jasa) {
-                $jumlah = (int) ($request->jumlah_jasa[$jasaId] ?? 1);
+                //----- Ambil jumlah jasa dari form, minimal 1
+                $jumlah = (int) $request->jumlah_jasa[$jasaId];
                 if ($jumlah < 1) {
                     $jumlah = 1;
                 }
@@ -141,16 +191,18 @@ class ServisController extends Controller
                     'jumlah' => $jumlah,
                     'harga' => $jasa->harga,
                 ]);
-                $jumlahBayar += $jasa->harga * $jumlah;
+                //----- Jumlahkan untuk total pembayaran
+                $jumlahBayar = $jumlahBayar + ($jasa->harga * $jumlah);
             }
         }
 
+        //----- Simpan data pembayaran untuk servis ini
         DB::table('pembayaran')->insert([
             'no_pembayaran' => 'PAY-' . $servisId . '-' . time(),
             'servis_id' => $servisId,
             'user_id' => $user->id,
             'tanggal' => now(),
-            'metode' => $request->metode_pembayaran ?: 'tunai',
+            'metode' => $request->metode_pembayaran,
             'jumlah_bayar' => $jumlahBayar,
             'created_at' => now(),
         ]);
@@ -179,6 +231,7 @@ class ServisController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- Update data utama servis
         DB::table('servis')->where('id', $id)->update([
             'no_servis' => $request->no_servis,
             'pelanggan_id' => $request->pelanggan_id,
@@ -190,34 +243,45 @@ class ServisController extends Controller
             'updated_at' => now(),
         ]);
 
+        //----- Hapus semua detail jasa lama, nanti diisi ulang
         DB::table('servis_jasa')->where('servis_id', $id)->delete();
 
         $jumlahBayar = 0;
+        $jasaDipilih = $request->jasa_servis_id;
 
-        foreach ($request->jasa_servis_id ?: [] as $jasaId) {
+        if ($jasaDipilih == null) {
+            $jasaDipilih = [];
+        }
+
+        //----- Simpan ulang detail jasa yang dipilih
+        foreach ($jasaDipilih as $jasaId) {
             $jasa = DB::table('jasa_servis')->where('id', $jasaId)->first();
 
             if ($jasa) {
-                $jumlah = (int) ($request->jumlah_jasa[$jasaId] ?? 1);
+                $jumlah = (int) $request->jumlah_jasa[$jasaId];
                 if ($jumlah < 1) {
                     $jumlah = 1;
                 }
-                $servisJasaId = DB::table('servis_jasa')->insertGetId([
+
+                DB::table('servis_jasa')->insert([
                     'servis_id' => (int) $id,
                     'jasa_servis_id' => (int) $jasa->id,
                     'jumlah' => $jumlah,
                     'harga' => (float) $jasa->harga,
                 ]);
-                $jumlahBayar += $jasa->harga * $jumlah;
+                $jumlahBayar = $jumlahBayar + ($jasa->harga * $jumlah);
             }
         }
 
+        //----- Cek apakah servis ini sudah punya data pembayaran
         if (DB::table('pembayaran')->where('servis_id', $id)->exists()) {
+            //----- Sudah ada, cukup update
             DB::table('pembayaran')->where('servis_id', $id)->update([
-                'metode' => $request->metode_pembayaran ?: 'tunai',
+                'metode' => $request->metode_pembayaran,
                 'jumlah_bayar' => $jumlahBayar,
             ]);
         } else {
+            //----- Belum ada, cari user login lalu buat pembayaran baru
             $user = DB::table('users')->where('nama', session('u'))->first();
 
             if ($user) {
@@ -226,7 +290,7 @@ class ServisController extends Controller
                     'servis_id' => $id,
                     'user_id' => $user->id,
                     'tanggal' => now(),
-                    'metode' => $request->metode_pembayaran ?: 'tunai',
+                    'metode' => $request->metode_pembayaran,
                     'jumlah_bayar' => $jumlahBayar,
                     'created_at' => now(),
                 ]);
@@ -254,6 +318,7 @@ class ServisController extends Controller
 
         $export = new ServisExport($this->servisData());
 
+        //----- pdfTable() adalah helper di Controller.php untuk bikin tabel PDF
         $this->pdfTable('Laporan Transaksi Servis', 'laporan-servis', $export->headings(), $export->collection()->all());
     }
 

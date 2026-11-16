@@ -1,16 +1,17 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form tambah pengguna baru. Tidak ada data dari controller, form dikirim ke PenggunaController method simpanPengguna() --}}
 
     <h1 class="mb-4 fw-bold">Tambah Pengguna</h1>
 
     <div class="card">
         <div class="card-body">
-            @if ($errors->any())
+            <?php if ($errors->any()) { ?>
                 <div class="alert alert-danger">
                     {{ $errors->first() }}
                 </div>
-            @endif
+            <?php } ?>
 
             <form action="/tambah_users_aksi" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -34,6 +35,7 @@
                     <label class="fw-semibold">Role</label>
                     <select name="role" class="form-control" required>
                         <option value="">-- Pilih Role --</option>
+                        {{-- Daftar pilihan role, $value = nilai yang disimpan, $label = teks yang tampil --}}
                         @foreach (['owner' => 'Owner', 'admin' => 'Admin', 'kasir' => 'Kasir', 'karyawan' => 'Karyawan', 'mekanik' => 'Mekanik'] as $value => $label)
                             <option value="{{ $value }}" @selected(old('role') == $value)>{{ $label }}</option>
                         @endforeach

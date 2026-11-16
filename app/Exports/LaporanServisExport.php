@@ -15,22 +15,37 @@ class LaporanServisExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data laporan menjadi baris-baris Excel
-    //----- ?: '-': data null/kosong ditampilkan sebagai strip
-    //----- ucfirst(): huruf pertama jadi kapital (misal: "selesai" -> "Selesai")
+    //----- Data kosong ditampilkan sebagai strip
     public function collection(): Collection
     {
-        return $this->rows->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            $namaMekanik = '-';
+            if ($row->nama_mekanik != null && $row->nama_mekanik != '') {
+                $namaMekanik = $row->nama_mekanik;
+            }
+
+            $keluhan = '-';
+            if ($row->keluhan != null && $row->keluhan != '') {
+                $keluhan = $row->keluhan;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->no_servis, //----- Nomor servis
                 $row->nama_pelanggan, //----- Nama pelanggan
                 $row->no_polisi, //----- No polisi kendaraan
-                $row->nama_mekanik ?: '-', //----- Nama mekanik (kosong -> '-')
+                $namaMekanik, //----- Nama mekanik
                 $row->tanggal_masuk, //----- Tanggal servis masuk
-                $row->keluhan ?: '-', //----- Keluhan pelanggan (kosong -> '-')
-                ucfirst($row->status ?: '-'), //----- Status dengan huruf kapital
+                $keluhan, //----- Keluhan pelanggan
+                $row->status, //----- Status apa adanya
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

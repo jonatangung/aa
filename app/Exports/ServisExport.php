@@ -15,25 +15,38 @@ class ServisExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data servis menjadi baris-baris Excel
-    //----- $row->daftar_jasa & $row->total_jasa & $row->metode_pembayaran: properti tambahan yang disusun di controller (servisData)
+    //----- $row->daftar_jasa, $row->total_jasa, $row->metode_pembayaran: properti tambahan yang disusun di controller (servisData)
     //----- number_format: format total harga menjadi Rupiah
-    //----- ucfirst(): huruf pertama status jadi kapital
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        //----- Ulangi tiap baris data servis
+        foreach ($this->rows as $row) {
+            //----- Nama mekanik kosong -> tampilkan strip
+            $namaMekanik = '-';
+            if ($row->nama_mekanik != '') {
+                $namaMekanik = $row->nama_mekanik;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->no_servis, //----- Nomor servis
                 $row->nama_pelanggan, //----- Nama pelanggan
                 $row->no_polisi, //----- No polisi kendaraan
                 $row->daftar_jasa, //----- Rincian jasa (string dari controller)
                 'Rp' . number_format($row->total_jasa, 0, ',', '.'), //----- Total harga diformat Rupiah
-                $row->nama_mekanik ?: '-', //----- Nama mekanik (kosong -> '-')
+                $namaMekanik, //----- Nama mekanik
                 $row->metode_pembayaran, //----- Metode pembayaran
                 $row->tanggal_masuk, //----- Tanggal masuk servis
-                ucfirst($row->status ?: '-'), //----- Status dengan huruf kapital
+                $row->status, //----- Status apa adanya
             ];
-        });
+            $no++;
+        }
+
+        //----- Kembalikan sebagai Collection supaya bisa dipakai Laravel Excel
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

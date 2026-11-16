@@ -16,24 +16,54 @@ class UsersExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data user+mekanik menjadi baris-baris Excel
-    //----- $user->nama_user ?? $user->nama: pakai nama dari tabel users jika ada (hasil join), fallback ke nama asli
-    //----- $user->role ?? '-': role user, kosong -> '-'
-    //----- $user->nama: nama mekanik (dari tabel mekanik)
-    //----- ?? '-': semua properti opsional ditampilkan '-' jika null
+    //----- $user->nama_user diambil dari tabel users hasil join; $user->nama dari tabel mekanik
+    //----- Properti opsional yang kosong ditampilkan sebagai strip
     public function collection(): Collection
     {
-        return $this->users->values()->map(function (object $user, int $index): array {
-            return [
-                $index + 1, //----- No urut
-                $user->nama_user ?? $user->nama, //----- Nama (user hasil join / fallback nama asli)
+        $data = [];
+        $no = 1;
+
+        foreach ($this->users as $user) {
+            //----- Nama: pakai nama_user dari join, kosong -> nama asli
+            $nama = $user->nama;
+            if ($user->nama_user != null && $user->nama_user != '') {
+                $nama = $user->nama_user;
+            }
+
+            $role = '-';
+            if ($user->role != null && $user->role != '') {
+                $role = $user->role;
+            }
+
+            $noHp = '-';
+            if ($user->no_hp != null && $user->no_hp != '') {
+                $noHp = $user->no_hp;
+            }
+
+            $spesialisasi = '-';
+            if ($user->spesialisasi != null && $user->spesialisasi != '') {
+                $spesialisasi = $user->spesialisasi;
+            }
+
+            $status = '-';
+            if ($user->status != null && $user->status != '') {
+                $status = $user->status;
+            }
+
+            $data[] = [
+                $no, //----- No urut
+                $nama, //----- Nama (user hasil join / fallback nama asli)
                 $user->email, //----- Email
-                $user->role ?? '-', //----- Level/role (kosong -> '-')
+                $role, //----- Level/role
                 $user->nama, //----- Nama Mekanik
-                $user->no_hp ?? '-', //----- No HP (kosong -> '-')
-                $user->spesialisasi ?? '-', //----- Spesialisasi (kosong -> '-')
-                $user->status ?? '-', //----- Status (kosong -> '-')
+                $noHp, //----- No HP
+                $spesialisasi, //----- Spesialisasi
+                $status, //----- Status
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

@@ -15,19 +15,24 @@ class PelangganExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data database menjadi baris-baris Excel
-    //----- collect()->values()->map(): iterasi tiap baris dan susun sesuai urutan kolom
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            $data[] = [
+                $no, //----- No urut
                 $row->kode_pelanggan, //----- Kode Pelanggan (misal: PLG-xxx)
                 $row->nama, //----- Nama pelanggan
                 $row->alamat, //----- Alamat
                 $row->email, //----- Email
                 $row->no_hp, //----- No HP
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

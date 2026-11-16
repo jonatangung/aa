@@ -15,20 +15,32 @@ class PenggunaExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data pengguna menjadi baris-baris Excel
-    //----- is_active ? 'Aktif' : 'Tidak Aktif': ubah angka 1/0 menjadi teks status
+    //----- is_active 1/0 diubah jadi teks Aktif/Tidak Aktif
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            //----- Status disimpan sebagai angka, diubah jadi teks yang mudah dibaca
+            $status = 'Tidak Aktif';
+            if ($row->is_active == 1) {
+                $status = 'Aktif';
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->nama, //----- Nama pengguna
                 $row->email, //----- Email
                 $row->role, //----- Role (admin/mekanik/dll)
                 $row->no_hp, //----- No HP
-                $row->is_active ? 'Aktif' : 'Tidak Aktif', //----- Status aktif/tidak
+                $status, //----- Status aktif/tidak
                 $row->created_at, //----- Tanggal bergabung
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

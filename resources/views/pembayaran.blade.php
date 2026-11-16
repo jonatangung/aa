@@ -1,15 +1,18 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman daftar pembayaran. Data $rows dikirim dari PembayaranController method pembayaran() --}}
 
     <h1 class="mb-3">Pembayaran</h1>
 
+    {{-- Tombol print dan export PDF/Excel --}}
     <div class="d-flex flex-wrap justify-content-end align-items-center mb-3 gap-2 no-print">
         <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">Print Window</button>
         <a href="/pembayaran/pdf" target="_blank" class="btn btn-danger btn-sm">Download PDF</a>
         <a href="/pembayaran/excel" class="btn btn-success btn-sm">Export Excel</a>
     </div>
 
+    {{-- Tabel daftar pembayaran --}}
     <div class="card mt-3">
         <div class="card-body table-responsive">
             <h5 class="card-title">Pembayaran</h5>
@@ -30,29 +33,30 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    {{-- $rows = kumpulan data pembayaran dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($rows as $value)
                         <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= $value->no_pembayaran ?></td>
-                            <td><?= $value->no_servis ?? '-' ?></td>
-                            <td><?= $value->keluhan ?? '-' ?></td>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
+                            <td>{{ $value->no_pembayaran }}</td>
+                            <?php if ($value->no_servis == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $value->no_servis }}</td>
+                            <?php } ?>
+                            <?php if ($value->keluhan == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $value->keluhan }}</td>
+                            <?php } ?>
+                            {{-- $value->daftar_jasa = rincian jasa yang sudah dirangkai di controller --}}
+                            <td>{{ $value->daftar_jasa }}</td>
+                            <td>{{ $value->tanggal }}</td>
+                            <td class="fw-bold">Rp{{ number_format($value->jumlah_bayar, 0, ',', '.') }}</td>
+                            <td>{{ $value->metode }}</td>
                             <td>
-                                @php $jasaList = $jasaByServis->get($value->servis_id, collect()); @endphp
-                                @forelse ($jasaList as $jasa)
-                                    <div>
-                                        {{ $jasa->nama_jasa }} ({{ $jasa->jumlah }}x) —
-                                        Rp<?= number_format($jasa->jumlah * $jasa->harga, 0, ',', '.') ?>
-                                    </div>
-                                @empty
-                                    <span class="text-muted">-</span>
-                                @endforelse
-                            </td>
-                            <td><?= $value->tanggal ?></td>
-                            <td class="fw-bold">Rp<?= number_format($value->jumlah_bayar, 0, ',', '.') ?></td>
-                            <td><?= ucfirst($value->metode) ?></td>
-                            <td>
-                                <a href="/edit_pembayaran/<?= $value->id ?>" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="/hapus_pembayaran/<?= $value->id ?>" method="POST" class="d-inline">
+                                <a href="/edit_pembayaran/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="/hapus_pembayaran/{{ $value->id }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
                                 </form>

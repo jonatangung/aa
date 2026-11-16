@@ -38,18 +38,12 @@ class StokBarangController extends Controller
         ");
     }
 
-    //----- inputStokBarang(): Menampilkan form input stok dengan filter supplier/barang
+    //----- inputStokBarang(): Menampilkan form kelola stok dengan pilihan barang dari supplier
     public function inputStokBarang(Request $request)
     {
         if (!session('u')) return redirect('/');
 
-        $barang = collect();
-        if ($request->supplier_nama) {
-            $barang = DB::table('supplier')
-                ->where('nama_supplier', $request->supplier_nama)
-                ->get();
-        }
-
+        //----- Cari barang yang dipilih lewat dropdown (kosong = belum pilih)
         $selectedBarang = null;
         if ($request->supplier_id) {
             $selectedBarang = DB::table('supplier')
@@ -59,8 +53,6 @@ class StokBarangController extends Controller
 
         return view('input_stok_barang', [
             'supplierData' => DB::table('supplier')->get(),
-            'supplierNama' => $request->supplier_nama,
-            'barang' => $barang,
             'selectedBarang' => $selectedBarang,
         ]);
     }
@@ -74,16 +66,23 @@ class StokBarangController extends Controller
             return redirect('/stok-barang');
         }
 
+        //----- Tanggal kosong berarti pakai tanggal hari ini
+        $tanggal = $request->tanggal;
+        if ($tanggal == null || $tanggal == '') {
+            $tanggal = now()->toDateString();
+        }
+
         DB::table('stok_barang')->insert([
             'supplier_id' => $request->supplier_id,
             'jenis' => 'masuk',
             'jumlah' => $request->jumlah,
-            'tanggal' => $request->tanggal,
+            'tanggal' => $tanggal,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
         DB::table('supplier')->where('id', $request->supplier_id)->update([
-            'tanggal_masuk' => $request->tanggal ?: now()->toDateString(),
+            'tanggal_masuk' => $tanggal,
             'updated_at' => now(),
         ]);
 
@@ -98,9 +97,19 @@ class StokBarangController extends Controller
         $supplier = DB::table('supplier')->where('id', $id)->first();
         $jumlah = (int) $request->jumlah;
 
+        //----- Harga jual dan tanggal kosong diisi nilai default
+        $hargaJual = $request->harga_jual;
+        if ($hargaJual == null || $hargaJual == '') {
+            $hargaJual = 0;
+        }
+        $tanggal = $request->tanggal;
+        if ($tanggal == null || $tanggal == '') {
+            $tanggal = now()->toDateString();
+        }
+
         if ($supplier && $jumlah > 0) {
             DB::table('supplier')->where('id', $id)->update([
-                'harga_jual' => $request->harga_jual ?: 0,
+                'harga_jual' => $hargaJual,
                 'updated_at' => now(),
             ]);
 
@@ -108,7 +117,7 @@ class StokBarangController extends Controller
                 'supplier_id' => $id,
                 'jenis' => 'keluar',
                 'jumlah' => $jumlah,
-                'tanggal' => $request->tanggal ?: now()->toDateString(),
+                'tanggal' => $tanggal,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

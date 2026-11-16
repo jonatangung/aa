@@ -8,6 +8,7 @@
 </head>
 <body class="bg-light">
 
+    {{-- Halaman login. Form dikirim ke LoginController method aksilogin() --}}
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         
         <div class="card shadow border-0 p-4" style="width: 100%; max-width: 400px; border-radius: 12px;">

@@ -1,18 +1,19 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman pengaturan profil. Data $user dikirim dari ProfilController method profil(), form dikirim ke method updateProfil() --}}
 
     <h1 class="mb-4">Pengaturan Profil</h1>
 
     <div class="card">
         <div class="card-body">
-            @if ($errors->any())
+            <?php if ($errors->any()) { ?>
                 <div class="alert alert-danger">
                     {{ $errors->first() }}
                 </div>
-            @endif
+            <?php } ?>
 
-            @if ($user)
+            <?php if ($user != null) { ?>
                 <form method="POST" action="/profil" enctype="multipart/form-data">
                     @csrf
 
@@ -35,20 +36,20 @@
                         <label class="form-label fw-semibold">Password Baru</label>
                         <input type="password" name="password" class="form-control" minlength="6" placeholder="Kosongkan jika tidak ingin mengganti password">
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Foto Profil</label>
                         <input type="file" name="foto" class="form-control" accept="image/*">
-                        @if ($user->foto)
+                        <?php if ($user->foto != null && $user->foto != '') { ?>
                             <img src="{{ asset('uploads/' . $user->foto) }}" width="100" class="mt-2 rounded">
-                        @endif
+                        <?php } ?>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Simpan Profil</button>
                 </form>
-            @else
+            <?php } else { ?>
                 <p class="text-muted mb-0">Data profil tidak ditemukan.</p>
-            @endif
+            <?php } ?>
         </div>
     </div>
 

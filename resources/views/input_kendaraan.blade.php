@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form tambah kendaraan baru. Data $pelanggan dikirim dari KendaraanController method tambahKendaraan(). Data dikirim ke method simpanKendaraan() --}}
 
     <h1 class="mb-4 fw-bold">Tambah Kendaraan</h1>
 
@@ -13,8 +14,17 @@
                     <label class="fw-semibold">Pelanggan</label>
                     <select name="pelanggan_id" class="form-control" required>
                         <option value="">-- Pilih Pelanggan --</option>
+                        {{-- $pelanggan = kumpulan data pelanggan dari controller, $item = satu baris data di setiap putaran --}}
                         @foreach ($pelanggan as $item)
-                            <option value="{{ $item->id }}" @selected(old('pelanggan_id') == $item->id)>
+                            <?php
+                            $oldValue = old('pelanggan_id');
+                            if ($oldValue == $item->id) {
+                                $selected = 'selected';
+                            } else {
+                                $selected = '';
+                            }
+                            ?>
+                            <option value="{{ $item->id }}" <?php echo $selected; ?>>
                                 {{ $item->kode_pelanggan }} - {{ $item->nama }}
                             </option>
                         @endforeach
@@ -23,37 +33,44 @@
 
                 <div class="mb-3">
                     <label class="fw-semibold">No Polisi</label>
-                    <input type="text" name="no_polisi" class="form-control" value="{{ old('no_polisi') }}" required>
+                    <?php $oldNoPolisi = old('no_polisi'); ?>
+                    <input type="text" name="no_polisi" class="form-control" value="{{ $oldNoPolisi }}" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Merk</label>
-                    <input type="text" name="merk" class="form-control" value="{{ old('merk') }}" required>
+                    <?php $oldMerk = old('merk'); ?>
+                    <input type="text" name="merk" class="form-control" value="{{ $oldMerk }}" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Model</label>
-                    <input type="text" name="model" class="form-control" value="{{ old('model') }}" required>
+                    <?php $oldModel = old('model'); ?>
+                    <input type="text" name="model" class="form-control" value="{{ $oldModel }}" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Tahun</label>
-                    <input type="number" name="tahun" class="form-control" value="{{ old('tahun') }}">
+                    <?php $oldTahun = old('tahun'); ?>
+                    <input type="number" name="tahun" class="form-control" value="{{ $oldTahun }}">
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">Warna</label>
-                    <input type="text" name="warna" class="form-control" value="{{ old('warna') }}">
+                    <?php $oldWarna = old('warna'); ?>
+                    <input type="text" name="warna" class="form-control" value="{{ $oldWarna }}">
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">No Rangka</label>
-                    <input type="text" name="no_rangka" class="form-control" value="{{ old('no_rangka') }}">
+                    <?php $oldNoRangka = old('no_rangka'); ?>
+                    <input type="text" name="no_rangka" class="form-control" value="{{ $oldNoRangka }}">
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold">No Mesin</label>
-                    <input type="text" name="no_mesin" class="form-control" value="{{ old('no_mesin') }}">
+                    <?php $oldNoMesin = old('no_mesin'); ?>
+                    <input type="text" name="no_mesin" class="form-control" value="{{ $oldNoMesin }}">
                 </div>
 
                 <button type="submit" class="btn btn-primary px-4">Simpan</button>

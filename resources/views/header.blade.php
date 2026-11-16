@@ -46,6 +46,14 @@
 </head>
 
 <body>
+  {{-- Header atas: logo, tombol sidebar, dan menu profil --}}
+  <?php
+      //----- Foto user diambil dari session; kosong -> pakai gambar default
+      $fotoUrl = asset('assets/img/profile-img.jpg');
+      if (session('foto') != null && session('foto') != '') {
+          $fotoUrl = asset('uploads/' . session('foto'));
+      }
+  ?>
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
@@ -60,7 +68,7 @@
       <ul class="d-flex align-items-center">
         <li class="nav-item dropdown pe-3">
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{session('foto') ? asset('uploads/' . session('foto')) : asset('assets/img/profile-img.jpg')}}" alt="Profile" class="rounded-circle">
+            <img src="{{ $fotoUrl }}" alt="Profile" class="rounded-circle">
             <span class="d-none d-md-block dropdown-toggle ps-2">{{ session('u', 'Pengguna') }}</span>
           </a>
 

@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form tambah mekanik baru. Data dikirim ke MekanikController method aksi_tkry() --}}
 
     <h1 class="mb-4 fw-bold">Input Mekanik</h1>
 

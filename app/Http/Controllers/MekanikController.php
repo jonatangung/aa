@@ -13,15 +13,16 @@ class MekanikController extends Controller
 {
     // ==================== MEKANIK ====================
 
-    //----- karyawan(): Menampilkan halaman daftar mekanik
+    //----- karyawan(): Menampilkan halaman daftar mekanik. Mengirim data $karyawan ke view mekanik
     public function karyawan()
     {
         if (!session('u')) return redirect('/');
 
+        // $karyawan ini yang dipakai di view mekanik sebagai $karyawan
         return view('mekanik', ['karyawan' => $this->mekanikData()]);
     }
 
-    //----- mekanikData(): Mengambil seluruh data mekanik dari database (private)
+    //----- mekanikData(): Mengambil seluruh data mekanik dari database (private). get() = ambil semua data
     private function mekanikData()
     {
         return DB::table('mekanik')->get();
@@ -59,17 +60,18 @@ class MekanikController extends Controller
         return redirect('/mekanik');
     }
 
-    //----- editMekanik(): Menampilkan form edit mekanik berdasarkan id
+    //----- editMekanik(): Menampilkan form edit mekanik berdasarkan id. Mengirim data $row ke view edit_mekanik. where() = cari data, first() = ambil satu data
     public function editMekanik($id)
     {
         if (!session('u')) return redirect('/');
 
+        // $row ini yang dipakai di view edit_mekanik sebagai $row
         return view('edit_mekanik', [
             'row' => DB::table('mekanik')->where('id', $id)->first(),
         ]);
     }
 
-    //----- updateMekanik(): Memperbarui data mekanik yang dipilih
+    //----- updateMekanik(): Memperbarui data mekanik yang dipilih. update() = ubah data di database, redirect() = pindah halaman
     public function updateMekanik(Request $request, $id)
     {
         if (!session('u')) return redirect('/');
@@ -84,7 +86,7 @@ class MekanikController extends Controller
         return redirect('/mekanik');
     }
 
-    //----- hapusMekanik(): Menghapus data mekanik berdasarkan id
+    //----- hapusMekanik(): Menghapus data mekanik berdasarkan id. delete() = hapus data dari database
     public function hapusMekanik($id)
     {
         if (!session('u')) return redirect('/');

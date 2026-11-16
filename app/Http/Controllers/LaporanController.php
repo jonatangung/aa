@@ -18,22 +18,26 @@ class LaporanController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- $rows = hasil query laporan servis dengan filter tanggal
         $rows = $this->laporanServisData($request);
 
-        if ($request->export && !in_array(session('role'), ['owner', 'admin'], true)) {
-            return redirect('/laporan-servis');
-        }
+        //----- Export hanya boleh untuk owner & admin
+        if ($request->export != null && $request->export != '') {
+            if (!in_array(session('role'), ['owner', 'admin'])) {
+                return redirect('/laporan-servis');
+            }
 
-        if ($request->export === 'pdf') {
-            return $this->downloadPdf('pdf.laporan-servis', 'Laporan_Servis', [
-                'rows' => $rows,
-                'from' => $request->from,
-                'to' => $request->to,
-            ]);
-        }
+            if ($request->export == 'pdf') {
+                return $this->downloadPdf('pdf.laporan-servis', 'Laporan_Servis', [
+                    'rows' => $rows,
+                    'from' => $request->from,
+                    'to' => $request->to,
+                ]);
+            }
 
-        if ($request->export === 'excel') {
-            return Excel::download(new LaporanServisExport($rows), 'Laporan_Servis.xlsx');
+            if ($request->export == 'excel') {
+                return Excel::download(new LaporanServisExport($rows), 'Laporan_Servis.xlsx');
+            }
         }
 
         return view('laporan-servis', ['rows' => $rows]);
@@ -56,11 +60,13 @@ class LaporanController extends Controller
                 'servis.status'
             );
 
-        if ($request->from) {
+        //----- Filter tanggal mulai kalau diisi
+        if ($request->from != null && $request->from != '') {
             $query->whereDate('servis.tanggal_masuk', '>=', $request->from);
         }
 
-        if ($request->to) {
+        //----- Filter tanggal akhir kalau diisi
+        if ($request->to != null && $request->to != '') {
             $query->whereDate('servis.tanggal_masuk', '<=', $request->to);
         }
 
@@ -72,60 +78,104 @@ class LaporanController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- $data berisi rows, jasaByServis, dan totalPendapatan dari method laporanPendapatanData
         $data = $this->laporanPendapatanData($request);
 
-        if ($request->export && !in_array(session('role'), ['owner', 'admin'], true)) {
-            return redirect('/laporan-pendapatan');
-        }
+        //----- Export hanya boleh untuk owner & admin
+        if ($request->export != null && $request->export != '') {
+            if (!in_array(session('role'), ['owner', 'admin'])) {
+                return redirect('/laporan-pendapatan');
+            }
 
-        if ($request->export === 'pdf') {
-            return $this->downloadPdf('pdf.laporan-pendapatan', 'Laporan_Pendapatan', $data + [
-                'from' => $request->from,
-                'to' => $request->to,
-            ]);
-        }
+            if ($request->export == 'pdf') {
+                return $this->downloadPdf('pdf.laporan-pendapatan', 'Laporan_Pendapatan', [
+                    'rows' => $data['rows'],
+                    'totalPendapatan' => $data['totalPendapatan'],
+                    'from' => $request->from,
+                    'to' => $request->to,
+                ]);
+            }
 
-        if ($request->export === 'excel') {
-            return Excel::download(
-                new LaporanPendapatanExport($data['rows'], $data['jasaByServis'], $data['totalPendapatan']),
-                'Laporan_Pendapatan.xlsx'
-            );
+            if ($request->export == 'excel') {
+                return Excel::download(
+                    new LaporanPendapatanExport($data['rows'], $data['totalPendapatan']),
+                    'Laporan_Pendapatan.xlsx'
+                );
+            }
         }
 
         return view('laporan-pendapatan', $data);
     }
 
-    //----- laporanPendapatanData(): Mengambil data pembayaran join servis, hitung total per jasa dan total pendapatan (private)
+    //----- laporanPendapatanData(): Mengambil data pembayaran join servis, hitung rincian jasa dan total pendapatan (private)
     private function laporanPendapatanData(Request $request)
     {
         $query = DB::table('pembayaran')
             ->leftJoin('servis', 'servis.id', '=', 'pembayaran.servis_id')
             ->select('pembayaran.*', 'servis.no_servis', 'servis.keluhan');
 
-        if ($request->from) {
+        if ($request->from != null && $request->from != '') {
             $query->whereDate('pembayaran.tanggal', '>=', $request->from);
         }
 
-        if ($request->to) {
+        if ($request->to != null && $request->to != '') {
             $query->whereDate('pembayaran.tanggal', '<=', $request->to);
         }
 
         $rows = $query->orderByDesc('pembayaran.tanggal')->get();
 
-        $jasaByServis = $this->jasaByServis($rows->pluck('servis_id')->filter()->unique()->all());
+        //----- Kumpulkan servis_id yang ada untuk mencari jasa
+        $servisIds = [];
+        foreach ($rows as $row) {
+            if ($row->servis_id != null) {
+                $ada = false;
+                foreach ($servisIds as $id) {
+                    if ($id == $row->servis_id) {
+                        $ada = true;
+                    }
+                }
+                if (!$ada) {
+                    $servisIds[] = $row->servis_id;
+                }
+            }
+        }
+
+        //----- Detail jasa semua servis, dikelompokkan per servis_id
+        $jasaByServis = $this->jasaByServis($servisIds);
+
         $totalPendapatan = 0;
 
+        //----- Tambahkan rincian jasa dan total bayar ke tiap baris
         foreach ($rows as $row) {
-            $jasaList = $jasaByServis->get($row->servis_id, collect());
-            $row->total_jasa = $jasaList->isNotEmpty()
-                ? $jasaList->sum(fn($jasa) => $jasa->jumlah * $jasa->harga)
-                : $row->jumlah_bayar;
-            $totalPendapatan += $row->total_jasa;
+            $daftar = [];
+            $total = 0;
+
+            if ($row->servis_id != null) {
+                $jasaList = $jasaByServis->get($row->servis_id);
+
+                if ($jasaList != null) {
+                    foreach ($jasaList as $jasa) {
+                        $daftar[] = $jasa->nama_jasa . ' (' . $jasa->jumlah . 'x) - Rp'
+                            . number_format($jasa->jumlah * $jasa->harga, 0, ',', '.');
+                        $total = $total + ($jasa->jumlah * $jasa->harga);
+                    }
+                }
+            }
+
+            if (count($daftar) > 0) {
+                $row->daftar_jasa = implode(', ', $daftar);
+                $row->total_jasa = $total;
+            } else {
+                $row->daftar_jasa = '-';
+                //----- Tidak ada jasa, pakai jumlah bayar yang tersimpan
+                $row->total_jasa = $row->jumlah_bayar;
+            }
+
+            $totalPendapatan = $totalPendapatan + $row->total_jasa;
         }
 
         return [
             'rows' => $rows,
-            'jasaByServis' => $jasaByServis,
             'totalPendapatan' => $totalPendapatan,
         ];
     }

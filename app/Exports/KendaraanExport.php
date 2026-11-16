@@ -15,20 +15,31 @@ class KendaraanExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data database menjadi baris-baris Excel
-    //----- collect()->values()->map(): iterasi tiap baris dan susun sesuai urutan kolom
+    //----- $row->nama_pelanggan bisa kosong, fallback ke pelanggan_id
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            $namaPelanggan = $row->pelanggan_id;
+            if ($row->nama_pelanggan != null && $row->nama_pelanggan != '') {
+                $namaPelanggan = $row->nama_pelanggan;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->no_polisi, //----- Nomor polisi kendaraan
-                $row->nama_pelanggan ?? $row->pelanggan_id, //----- Nama pelanggan pemilik kendaraan
+                $namaPelanggan, //----- Nama pelanggan pemilik kendaraan
                 $row->merk, //----- Merk kendaraan
                 $row->model, //----- Model kendaraan
                 $row->tahun, //----- Tahun pembuatan
                 $row->warna, //----- Warna kendaraan
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

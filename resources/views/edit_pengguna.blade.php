@@ -1,16 +1,17 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form edit pengguna. Data $row dikirim dari PenggunaController method editPengguna(). Data dikirim ke method updatePengguna() --}}
 
     <h1 class="mb-4 fw-bold">Edit Pengguna</h1>
 
     <div class="card">
         <div class="card-body">
-            @if ($errors->any())
+            <?php if ($errors->any()) { ?>
                 <div class="alert alert-danger">
                     {{ $errors->first() }}
                 </div>
-            @endif
+            <?php } ?>
 
             <form action="/edit_users_aksi/{{ $row->id }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -42,9 +43,9 @@
                 <div class="mb-3">
                     <label class="fw-semibold">Foto Profil</label>
                     <input type="file" name="foto" class="form-control" accept="image/*">
-                    @if ($row->foto)
+                    <?php if ($row->foto != null && $row->foto != '') { ?>
                         <img src="{{ asset('uploads/' . $row->foto) }}" width="100" class="mt-2 rounded">
-                    @endif
+                    <?php } ?>
                 </div>
 
                 <button class="btn btn-warning" type="submit">Perbarui</button>

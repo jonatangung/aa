@@ -15,19 +15,29 @@ class MekanikExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data database menjadi baris-baris Excel
-    //----- collect()->values()->map(): iterasi tiap baris dan susun sesuai urutan kolom
-    //----- ucfirst(): huruf pertama status jadi kapital (misal: "aktif" -> "Aktif")
+    //----- Status kosong ditampilkan sebagai strip
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            $status = '-';
+            if ($row->status != null && $row->status != '') {
+                $status = $row->status;
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->nama, //----- Nama mekanik
                 $row->no_hp, //----- No HP
                 $row->spesialisasi, //----- Spesialisasi keahlian
-                ucfirst($row->status ?: '-'), //----- Status dengan huruf kapital
+                $status, //----- Status apa adanya
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

@@ -34,9 +34,21 @@
     </style>
 </head>
 <body>
+    {{-- Halaman PDF laporan servis. Data dikirim dari LaporanController method laporanServis() --}}
+    <?php
+        //----- Tanggal filter kosong -> tampilkan teks awal/akhir
+        $tanggalDari = 'awal';
+        if ($from != null && $from != '') {
+            $tanggalDari = $from;
+        }
+        $tanggalSampai = 'akhir';
+        if ($to != null && $to != '') {
+            $tanggalSampai = $to;
+        }
+    ?>
     <h2>Laporan Servis</h2>
     <p class="periode">
-        Periode: {{ $from ?: 'awal' }} s/d {{ $to ?: 'akhir' }}
+        Periode: {{ $tanggalDari }} s/d {{ $tanggalSampai }}
         | Dicetak: {{ now()->format('d/m/Y H:i') }}
     </p>
 
@@ -55,16 +67,26 @@
         </thead>
         <tbody>
             <?php $no = 1; ?>
+            {{-- $rows = daftar servis dari controller, $row = satu baris data di setiap putaran --}}
             @foreach ($rows as $row)
                 <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= $row->no_servis ?></td>
-                    <td><?= $row->nama_pelanggan ?></td>
-                    <td><?= $row->no_polisi ?></td>
-                    <td><?= $row->nama_mekanik ?: '-' ?></td>
-                    <td><?= $row->tanggal_masuk ?></td>
-                    <td><?= $row->keluhan ?: '-' ?></td>
-                    <td><?= ucfirst($row->status ?: '-') ?></td>
+                    <td>{{ $no }}</td>
+                    <?php $no++; ?>
+                    <td>{{ $row->no_servis }}</td>
+                    <td>{{ $row->nama_pelanggan }}</td>
+                    <td>{{ $row->no_polisi }}</td>
+                    <?php if ($row->nama_mekanik == null || $row->nama_mekanik == '') { ?>
+                        <td>-</td>
+                    <?php } else { ?>
+                        <td>{{ $row->nama_mekanik }}</td>
+                    <?php } ?>
+                    <td>{{ $row->tanggal_masuk }}</td>
+                    <?php if ($row->keluhan == null || $row->keluhan == '') { ?>
+                        <td>-</td>
+                    <?php } else { ?>
+                        <td>{{ $row->keluhan }}</td>
+                    <?php } ?>
+                    <td>{{ $row->status }}</td>
                 </tr>
             @endforeach
         </tbody>

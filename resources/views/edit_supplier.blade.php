@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form edit supplier. Data $row dikirim dari SupplierController method editSupplier(). Data dikirim ke method updateSupplier() --}}
 
     <h1 class="mb-4 fw-bold">Edit Supplier</h1>
 

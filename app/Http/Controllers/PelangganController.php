@@ -13,11 +13,12 @@ class PelangganController extends Controller
 {
     // ==================== PELANGGAN ====================
 
-    //----- pelanggan(): Menampilkan halaman daftar pelanggan (dengan filter tanggal)
+    //----- pelanggan(): Menampilkan halaman daftar pelanggan (dengan filter tanggal). Mengirim data $pelanggan ke view pelanggan
     public function pelanggan(Request $request)
     {
         if (!session('u')) return redirect('/');
 
+        // $pelanggan ini yang dipakai di view pelanggan sebagai $pelanggan
         return view('pelanggan', [
             'pelanggan' => $this->pelangganData($request),
         ]);
@@ -55,17 +56,18 @@ class PelangganController extends Controller
         return redirect('/pelanggan');
     }
 
-    //----- editPelanggan(): Menampilkan form edit pelanggan berdasarkan id
+    //----- editPelanggan(): Menampilkan form edit pelanggan berdasarkan id. Mengirim data $row ke view edit_pelanggan
     public function editPelanggan($id)
     {
         if (!session('u')) return redirect('/');
 
+        // $row ini yang dipakai di view edit_pelanggan sebagai $row
         return view('edit_pelanggan', [
             'row' => DB::table('pelanggan')->where('id', $id)->first(),
         ]);
     }
 
-    //----- updatePelanggan(): Memperbarui data pelanggan yang dipilih
+    //----- updatePelanggan(): Memperbarui data pelanggan yang dipilih. update() = ubah data di database
     public function updatePelanggan(Request $request, $id)
     {
         if (!session('u')) return redirect('/');
@@ -81,7 +83,7 @@ class PelangganController extends Controller
         return redirect('/pelanggan');
     }
 
-    //----- hapusPelanggan(): Menghapus data pelanggan berdasarkan id
+    //----- hapusPelanggan(): Menghapus data pelanggan berdasarkan id. delete() = hapus data dari database
     public function hapusPelanggan($id)
     {
         if (!session('u')) return redirect('/');

@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman daftar transaksi servis. Data $rows dikirim dari ServisController method servis() --}}
 
     <h1 class="mb-3">Transaksi Servis</h1>
 
@@ -13,6 +14,7 @@
         </div>
     </div>
 
+    {{-- Tabel daftar transaksi servis --}}
     <div class="card mt-3">
         <div class="card-body table-responsive">
             <h5 class="card-title">Transaksi Servis</h5>
@@ -34,17 +36,27 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    {{-- $rows = kumpulan data servis dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($rows as $value)
                         <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= $value->nama_pelanggan ?></td>
-                            <td><?= $value->no_polisi ?></td>
-                            <td><?= $value->daftar_jasa ?></td>
-                            <td>Rp<?= number_format($value->total_jasa, 0, ',', '.') ?></td>
-                            <td><?= $value->nama_mekanik ?: '-' ?></td>
-                            <td><?= $value->metode_pembayaran ?: '-' ?></td>
-                            <td><?= $value->tanggal_masuk ?></td>
-                            <td><?= ucfirst($value->status) ?></td>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
+                            <td>{{ $value->nama_pelanggan }}</td>
+                            <td>{{ $value->no_polisi }}</td>
+                            <td>{{ $value->daftar_jasa }}</td>
+                            <td>Rp{{ number_format($value->total_jasa, 0, ',', '.') }}</td>
+                            <?php if ($value->nama_mekanik == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $value->nama_mekanik }}</td>
+                            <?php } ?>
+                            <?php if ($value->metode_pembayaran == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $value->metode_pembayaran }}</td>
+                            <?php } ?>
+                            <td>{{ $value->tanggal_masuk }}</td>
+                            <td>{{ $value->status }}</td>
                             <td>
                                 <a href="/edit_servis/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
                                 <form action="/hapus_servis/{{ $value->id }}" method="POST" class="d-inline">

@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form tambah supplier baru. Data dikirim ke SupplierController method simpanSupplier() --}}
 
     <h1 class="mb-4 fw-bold">Tambah Supplier</h1>
 

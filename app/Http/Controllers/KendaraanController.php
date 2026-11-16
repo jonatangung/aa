@@ -12,15 +12,16 @@ class KendaraanController extends Controller
 {
     // ==================== KENDARAAN ====================
 
-    //----- kendaraan(): Menampilkan halaman daftar kendaraan
+    //----- kendaraan(): Menampilkan halaman daftar kendaraan. Mengirim data $rows ke view kendaraan
     public function kendaraan()
     {
         if (!session('u')) return redirect('/');
 
+        // $rows ini yang dipakai di view kendaraan sebagai $rows
         return view('kendaraan', ['rows' => $this->kendaraanData()]);
     }
 
-    //----- kendaraanData(): Mengambil seluruh data kendaraan dari database (private)
+    //----- kendaraanData(): Mengambil seluruh data kendaraan dari database (private). join() = gabung tabel, select() = pilih kolom, orderBy() = urutkan data, get() = ambil semua data
     private function kendaraanData()
     {
         return DB::table('kendaraan')
@@ -30,11 +31,12 @@ class KendaraanController extends Controller
             ->get();
     }
 
-    //----- tambahKendaraan(): Menampilkan form tambah kendaraan baru (beserta daftar pelanggan)
+    //----- tambahKendaraan(): Menampilkan form tambah kendaraan baru (beserta daftar pelanggan). Mengirim data $pelanggan ke view input_kendaraan
     public function tambahKendaraan()
     {
         if (!session('u')) return redirect('/');
 
+        // $pelanggan ini yang dipakai di view input_kendaraan sebagai $pelanggan
         return view('input_kendaraan', [
             'pelanggan' => DB::table('pelanggan')
                 ->select('id', 'nama', 'kode_pelanggan')
@@ -64,18 +66,19 @@ class KendaraanController extends Controller
         return redirect('/kendaraan');
     }
 
-    //----- editKendaraan(): Menampilkan form edit kendaraan berdasarkan id
+    //----- editKendaraan(): Menampilkan form edit kendaraan berdasarkan id. Mengirim data $row dan $pelanggan ke view edit_kendaraan
     public function editKendaraan($id)
     {
         if (!session('u')) return redirect('/');
 
+        // $row dan $pelanggan ini yang dipakai di view edit_kendaraan
         return view('edit_kendaraan', [
             'row' => DB::table('kendaraan')->where('id', $id)->first(),
             'pelanggan' => DB::table('pelanggan')->orderBy('nama')->get(),
         ]);
     }
 
-    //----- updateKendaraan(): Memperbarui data kendaraan yang dipilih
+    //----- updateKendaraan(): Memperbarui data kendaraan yang dipilih. update() = ubah data di database
     public function updateKendaraan(Request $request, $id)
     {
         if (!session('u')) return redirect('/');
@@ -94,7 +97,7 @@ class KendaraanController extends Controller
         return redirect('/kendaraan');
     }
 
-    //----- hapusKendaraan(): Menghapus data kendaraan berdasarkan id
+    //----- hapusKendaraan(): Menghapus data kendaraan berdasarkan id. delete() = hapus data dari database
     public function hapusKendaraan($id)
     {
         if (!session('u')) return redirect('/');

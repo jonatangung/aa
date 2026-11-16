@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form edit kendaraan. Data $row dan $pelanggan dikirim dari KendaraanController method editKendaraan(). Data dikirim ke method updateKendaraan() --}}
 
     <h1 class="mb-4 fw-bold">Edit Kendaraan</h1>
 
@@ -12,10 +13,17 @@
                 <div class="mb-3">
                     <label class="fw-semibold">Pelanggan</label>
                     <select name="pelanggan_id" class="form-control" required>
+                        {{-- $pelanggan = kumpulan data pelanggan dari controller, $item = satu baris data di setiap putaran --}}
                         @foreach ($pelanggan as $item)
-                            <option value="{{ $item->id }}" @selected($row->pelanggan_id == $item->id)>
-                                {{ $item->nama }}
-                            </option>
+                            <?php if ($row->pelanggan_id == $item->id) { ?>
+                                <option value="{{ $item->id }}" selected>
+                                    {{ $item->nama }}
+                                </option>
+                            <?php } else { ?>
+                                <option value="{{ $item->id }}">
+                                    {{ $item->nama }}
+                                </option>
+                            <?php } ?>
                         @endforeach
                     </select>
                 </div>

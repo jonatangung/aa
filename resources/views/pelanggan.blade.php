@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman daftar pelanggan. Data $pelanggan dikirim dari PelangganController method pelanggan() --}}
 
     <h1 class="mb-3">Data Pelanggan</h1>
 
@@ -8,13 +9,24 @@
         <a href="/tplg" class="btn btn-secondary">Tambah Pelanggan</a>
         <div>
             <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">Print Window</button>
-            <a href="{{ '/pelanggan/pdf' . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" target="_blank" class="btn btn-danger btn-sm">Download PDF</a>
-            <a href="{{ '/pelanggan/excel' . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" class="btn btn-success btn-sm">Export Excel</a>
+            <?php
+            $queryString = request()->getQueryString();
+            if ($queryString != '') {
+                $pdfUrl = '/pelanggan/pdf?' . $queryString;
+                $excelUrl = '/pelanggan/excel?' . $queryString;
+            } else {
+                $pdfUrl = '/pelanggan/pdf';
+                $excelUrl = '/pelanggan/excel';
+            }
+            ?>
+            <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-danger btn-sm">Download PDF</a>
+            <a href="{{ $excelUrl }}" class="btn btn-success btn-sm">Export Excel</a>
         </div>
     </div>
 
     
 
+    {{-- Tabel daftar pelanggan --}}
     <div class="card mt-3">
         <div class="card-body table-responsive">
             <h5 class="card-title">Daftar Pelanggan</h5>
@@ -32,9 +44,11 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    {{-- $pelanggan = kumpulan data pelanggan dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($pelanggan as $value)
                         <tr>
-                            <td><?= $no++ ?></td>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
                             <td>{{ $value->nama }}</td>
                             <td>{{ $value->alamat }}</td>
                             <td>{{ $value->email }}</td>

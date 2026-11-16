@@ -1,9 +1,11 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman rekap stok barang. Data $rows dikirim dari StokBarangController method stokBarang() --}}
 
     <h1 class="mb-3">Stok Barang</h1>
 
+    {{-- Tombol kelola stok, print, dan export --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
         <a href="/input_stok_barang" class="btn btn-primary">Kelola Stok</a>
         <div>
@@ -13,6 +15,7 @@
         </div>
     </div>
 
+    {{-- Tabel rekap stok per barang --}}
     <div class="card">
         <div class="card-body table-responsive">
             <h5 class="card-title">Stok Barang</h5>
@@ -34,18 +37,24 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    {{-- $rows = rekap stok dari controller, $row = satu baris data di setiap putaran --}}
                     @foreach ($rows as $row)
                         <tr>
-                            <td>{{ $no++ }}</td>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
                             <td>{{ $row->nama_supplier }}</td>
-                            <td>{{ $row->nama_barang ?: '-' }}</td>
+                            <?php if ($row->nama_barang == null || $row->nama_barang == '') { ?>
+                                <td>-</td>
+                            <?php } else { ?>
+                                <td>{{ $row->nama_barang }}</td>
+                            <?php } ?>
                             <td>Rp{{ number_format($row->harga, 0, ',', '.') }}</td>
                             <td>{{ $row->stok }}</td>
                             <td>{{ $row->stok_masuk }}</td>
                             <td>{{ $row->tanggal_masuk }}</td>
                             <td>{{ $row->stok_keluar }}</td>
                             <td>{{ $row->tanggal_keluar }}</td>
-                            <td>Rp{{ number_format($row->harga_jual ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format($row->harga_jual, 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                 </tbody>

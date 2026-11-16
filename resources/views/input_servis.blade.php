@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman form tambah transaksi servis baru. Data $pelanggan, $kendaraan, $mekanik, $jasa dikirim dari ServisController method tambahServis(). Data dikirim ke method simpanServis() --}}
 
     <h1 class="mb-4 fw-bold">Tambah Servis</h1>
 

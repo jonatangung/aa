@@ -9,46 +9,42 @@ use Maatwebsite\Excel\Concerns\WithHeadings; //----- WithHeadings: interface Lar
 //----- class LaporanPendapatanExport: menyiapkan data laporan pendapatan untuk diekspor ke Excel
 class LaporanPendapatanExport implements FromCollection, WithHeadings
 {
-    //----- __construct(): menerima 3 data:
-    //----- $rows = daftar pembayaran, $jasaByServis = detail jasa per servis (sudah dikelompokkan), $totalPendapatan = total keseluruhan
+    //----- __construct(): menerima 2 data:
+    //----- $rows = daftar pembayaran (sudah ada properti daftar_jasa & total_jasa dari controller)
+    //----- $totalPendapatan = total keseluruhan
     public function __construct(
         private Collection $rows,
-        private Collection $jasaByServis,
         private float $totalPendapatan
     ) {
     }
 
     //----- collection(): mengubah data pembayaran menjadi baris-baris Excel
-    //----- $jasaByServis->get($row->servis_id): mengambil daftar jasa milik servis tsb berdasarkan servis_id
-    //----- ->map(fn...): ubah tiap jasa menjadi teks "Nama Jasa (2x) - Rp100.000"
-    //----- ->implode(', '): gabung semua jasa jadi satu string dipisah koma
-    //----- $data->push([...]): menambahkan 1 baris tambahan di bawah berisi TOTAL PENDAPATAN keseluruhan
+    //----- Baris terakhir berisi TOTAL PENDAPATAN keseluruhan
     public function collection(): Collection
     {
-        $data = $this->rows->values()->map(function (object $row, int $index): array {
-            $jasaList = $this->jasaByServis->get($row->servis_id, collect());
-            $jasa = '-';
+        $data = [];
+        $no = 1;
 
-            if ($jasaList->isNotEmpty()) {
-                $jasa = $jasaList
-                    ->map(fn ($item) => $item->nama_jasa . ' (' . $item->jumlah . 'x) - Rp'
-                        . number_format($item->jumlah * $item->harga, 0, ',', '.'))
-                    ->implode(', ');
+        foreach ($this->rows as $row) {
+            $noServis = '-';
+            if ($row->no_servis != null && $row->no_servis != '') {
+                $noServis = $row->no_servis;
             }
 
-            return [
-                $index + 1, //----- No urut
+            $data[] = [
+                $no, //----- No urut
                 $row->no_pembayaran, //----- Nomor pembayaran
-                $row->no_servis ?? '-', //----- No servis (kosong -> '-')
-                $jasa, //----- Rincian jasa yang dibayar
+                $noServis, //----- No servis
+                $row->daftar_jasa, //----- Rincian jasa yang dibayar
                 $row->tanggal, //----- Tanggal pembayaran
                 'Rp' . number_format($row->total_jasa, 0, ',', '.'), //----- Total bayar diformat Rupiah
-                ucfirst($row->metode), //----- Metode bayar dengan huruf kapital
+                $row->metode, //----- Metode bayar apa adanya
             ];
-        });
+            $no++;
+        }
 
         //----- Tambah baris TOTAL di paling bawah tabel
-        $data->push([
+        $data[] = [
             '',
             '',
             '',
@@ -56,9 +52,9 @@ class LaporanPendapatanExport implements FromCollection, WithHeadings
             'Total Pendapatan',
             'Rp' . number_format($this->totalPendapatan, 0, ',', '.'),
             '',
-        ]);
+        ];
 
-        return $data;
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

@@ -15,21 +15,31 @@ class JasaServisExport implements FromCollection, WithHeadings
     }
 
     //----- collection(): mengubah data database menjadi baris-baris Excel
-    //----- collect()->values()->map(): iterasi tiap baris dan susun sesuai urutan kolom
     //----- number_format: format harga menjadi Rupiah (misal: Rp50.000)
-    //----- is_active ? 'Aktif' : 'Tidak Aktif': ubah angka 1/0 menjadi teks status
+    //----- is_active 1/0 diubah jadi teks Aktif/Tidak Aktif
     public function collection(): Collection
     {
-        return collect($this->rows)->values()->map(function (object $row, int $index): array {
-            return [
-                $index + 1, //----- No urut
+        $data = [];
+        $no = 1;
+
+        foreach ($this->rows as $row) {
+            $status = 'Tidak Aktif';
+            if ($row->is_active == 1) {
+                $status = 'Aktif';
+            }
+
+            $data[] = [
+                $no, //----- No urut
                 $row->kode_jasa, //----- Kode Jasa (misal: JS_001)
                 $row->nama_jasa, //----- Nama Jasa
                 'Rp' . number_format($row->harga, 0, ',', '.'), //----- Harga diformat Rupiah
                 $row->estimasi_menit, //----- Estimasi pengerjaan (menit)
-                $row->is_active ? 'Aktif' : 'Tidak Aktif', //----- Status aktif/tidak
+                $status, //----- Status aktif/tidak
             ];
-        });
+            $no++;
+        }
+
+        return collect($data);
     }
 
     //----- headings(): judul kolom yang tampil di baris pertama Excel

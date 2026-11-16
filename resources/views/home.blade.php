@@ -1,13 +1,15 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman dashboard. Data jumlah pelanggan, kendaraan, mekanik, servis dikirim dari LoginController method home() --}}
 
-    @php $role = session('role'); @endphp
+    <?php $role = session('role'); ?>
     <h1 class="no-print mb-1">Dashboard Bengkel Motor</h1>
-    <p class="text-muted mb-4">Selamat datang, {{ session('u') }} ({{ ucfirst($role ?? '-') }})</p>
+    <p class="text-muted mb-4">Selamat datang, {{ session('u') }} ({{ $role }})</p>
 
+    {{-- Kartu menu cepat, tiap kartu hanya tampil sesuai role user --}}
     <div class="row no-print mb-4">
-        @if (in_array($role, ['owner', 'kasir']))
+        <?php if (in_array($role, ['owner', 'kasir'])) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/pelanggan" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
@@ -19,9 +21,9 @@
                 </div>
             </a>
         </div>
-        @endif
+        <?php } ?>
 
-        @if (in_array($role, ['owner', 'admin']))
+        <?php if (in_array($role, ['owner', 'admin'])) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/mekanik" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
@@ -45,9 +47,9 @@
                 </div>
             </a>
         </div>
-        @endif
+        <?php } ?>
 
-        @if ($role === 'owner')
+        <?php if ($role === 'owner') { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/supplier" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
@@ -59,9 +61,9 @@
                 </div>
             </a>
         </div>
-        @endif
+        <?php } ?>
 
-        @if (in_array($role, ['owner', 'kasir']))
+        <?php if (in_array($role, ['owner', 'kasir'])) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/servis" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
@@ -73,9 +75,9 @@
                 </div>
             </a>
         </div>
-        @endif
+        <?php } ?>
 
-        @if ($role === 'owner')
+        <?php if ($role === 'owner') { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/pembayaran" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
@@ -87,9 +89,9 @@
                 </div>
             </a>
         </div>
-        @endif
+        <?php } ?>
 
-        @if (in_array($role, ['owner', 'karyawan']))
+        <?php if (in_array($role, ['owner', 'karyawan'])) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/kendaraan" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
@@ -101,9 +103,7 @@
                 </div>
             </a>
         </div>
-        @endif
+        <?php } ?>
     </div>
-
- 
 
 @endsection

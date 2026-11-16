@@ -16,6 +16,7 @@ class ProfilController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- Cari user yang sedang login berdasarkan nama di session
         $user = DB::table('users')->where('nama', session('u'))->first();
 
         return view('profil', ['user' => $user]);
@@ -39,10 +40,12 @@ class ProfilController extends Controller
             'updated_at' => now(),
         ];
 
+        //----- Password hanya diganti kalau diisi (kosong = tidak berubah)
         if ($request->filled('password')) {
             $data['password'] = $request->password;
         }
 
+        //----- Upload foto baru ke folder public/uploads, foto lama dihapus
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -54,8 +57,10 @@ class ProfilController extends Controller
             }
         }
 
+        //----- Simpan perubahan ke database
         DB::table('users')->where('id', $user->id)->update($data);
 
+        //----- Ambil data terbaru lalu perbarui session supaya nama/foto di header ikut berubah
         $userUpdate = DB::table('users')->where('id', $user->id)->first();
         session([
             'u' => $request->nama,

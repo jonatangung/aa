@@ -12,15 +12,16 @@ class JasaServisController extends Controller
 {
     // ==================== JASA SERVIS ====================
 
-    //----- jasaServis(): Menampilkan halaman daftar jasa servis
+    //----- jasaServis(): Menampilkan halaman daftar jasa servis. Mengirim data $rows ke view jasa-servis
     public function jasaServis()
     {
         if (!session('u')) return redirect('/');
 
+        // $rows ini yang dipakai di view jasa-servis sebagai $rows
         return view('jasa-servis', ['rows' => $this->jasaServisData()]);
     }
 
-    //----- jasaServisData(): Mengambil seluruh data jasa servis dari database (private)
+    //----- jasaServisData(): Mengambil seluruh data jasa servis dari database (private). get() = ambil semua data
     private function jasaServisData()
     {
         return DB::table('jasa_servis')->get();
@@ -34,7 +35,7 @@ class JasaServisController extends Controller
         return view('input_jasa_servis');
     }
 
-    //----- simpanJasaServis(): Menyimpan jasa servis baru dengan kode otomatis JS_xxx
+    //----- simpanJasaServis(): Menyimpan jasa servis baru dengan kode otomatis JS_xxx. insert() = simpan data baru
     public function simpanJasaServis(Request $request)
     {
         if (!session('u')) return redirect('/');
@@ -44,10 +45,23 @@ class JasaServisController extends Controller
             ->orderByDesc('kode_jasa')
             ->value('kode_jasa');
 
-        $next = $lastKode ? ((int) substr($lastKode, 3)) + 1 : 1;
+        if ($lastKode != '') {
+            $angka = (int) substr($lastKode, 3);
+            $next = $angka + 1;
+        } else {
+            $next = 1;
+        }
+
+        if ($next < 10) {
+            $kodeJasa = 'JS_00' . $next;
+        } elseif ($next < 100) {
+            $kodeJasa = 'JS_0' . $next;
+        } else {
+            $kodeJasa = 'JS_' . $next;
+        }
 
         DB::table('jasa_servis')->insert([
-            'kode_jasa' => 'JS_' . str_pad($next, 3, '0', STR_PAD_LEFT),
+            'kode_jasa' => $kodeJasa,
             'nama_jasa' => $request->nama_jasa,
             'harga' => $request->harga,
             'estimasi_menit' => $request->estimasi_menit,
@@ -59,17 +73,18 @@ class JasaServisController extends Controller
         return redirect('/jasa-servis');
     }
 
-    //----- editJasaServis(): Menampilkan form edit jasa servis berdasarkan id
+    //----- editJasaServis(): Menampilkan form edit jasa servis berdasarkan id. Mengirim data $row ke view edit_jasa_servis
     public function editJasaServis($id)
     {
         if (!session('u')) return redirect('/');
 
+        // $row ini yang dipakai di view edit_jasa_servis sebagai $row
         return view('edit_jasa_servis', [
             'row' => DB::table('jasa_servis')->where('id', $id)->first(),
         ]);
     }
 
-    //----- updateJasaServis(): Memperbarui data jasa servis yang dipilih
+    //----- updateJasaServis(): Memperbarui data jasa servis yang dipilih. update() = ubah data di database
     public function updateJasaServis(Request $request, $id)
     {
         if (!session('u')) return redirect('/');
@@ -85,7 +100,7 @@ class JasaServisController extends Controller
         return redirect('/jasa-servis');
     }
 
-    //----- hapusJasaServis(): Menghapus jasa servis beserta relasi servis_jasa-nya
+    //----- hapusJasaServis(): Menghapus jasa servis beserta relasi servis_jasa-nya. delete() = hapus data dari database
     public function hapusJasaServis($id)
     {
         if (!session('u')) return redirect('/');

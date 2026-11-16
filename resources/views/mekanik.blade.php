@@ -1,6 +1,7 @@
 @extends('template')
 
 @section('content')
+{{-- Halaman daftar mekanik. Data $karyawan dikirim dari MekanikController method karyawan() --}}
 
     <h1 class="mb-3">Data Mekanik</h1>
 
@@ -13,6 +14,7 @@
         </div>
     </div>
 
+    {{-- Tabel daftar mekanik --}}
     <div class="card">
         <div class="card-body table-responsive">
             <h5 class="card-title">Daftar Mekanik</h5>
@@ -29,12 +31,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {{-- $no = variabel nomor urut, dimulai dari 1 --}}
                     <?php $no = 1; ?>
+                    {{-- $karyawan = kumpulan data mekanik dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($karyawan as $value)
                         <tr>
+                            {{-- Tampilkan nomor urut --}}
                             <td>{{ $no }}</td>
+                            {{-- Tambah nomor urut --}}
                             <?php $no++; ?>
                             <td>{{ $value->nama }}</td>
+                            {{-- Tampilkan no HP, jika kosong tampilkan tanda - --}}
                             <td>
                                 <?php if ($value->no_hp == '') { ?>
                                     -
@@ -42,6 +49,7 @@
                                     {{ $value->no_hp }}
                                 <?php } ?>
                             </td>
+                            {{-- Tampilkan spesialisasi, jika kosong tampilkan tanda - --}}
                             <td>
                                 <?php if ($value->spesialisasi == '') { ?>
                                     -
@@ -50,6 +58,7 @@
                                 <?php } ?>
                             </td>
                             <td>{{ $value->status }}</td>
+                            {{-- Tombol edit dan hapus --}}
                             <td>
                                 <a href="/edit_mekanik/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
                                 <form action="/hapus_mekanik/{{ $value->id }}" method="POST" class="d-inline">

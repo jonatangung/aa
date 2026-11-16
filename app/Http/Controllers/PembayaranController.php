@@ -12,7 +12,7 @@ class PembayaranController extends Controller
 {
     // ==================== PEMBAYARAN ====================
 
-    //----- pembayaran(): Menampilkan halaman daftar pembayaran
+    //----- pembayaran(): Menampilkan halaman daftar pembayaran, data dikirim ke view pembayaran
     public function pembayaran()
     {
         if (!session('u')) return redirect('/');
@@ -20,31 +20,63 @@ class PembayaranController extends Controller
         return view('pembayaran', $this->pembayaranData());
     }
 
-    //----- pembayaranData(): Mengambil data pembayaran join dengan servis beserta rincian jasa dan total bayar (private)
+    //----- pembayaranData(): Mengambil data pembayaran join dengan servis beserta rincian jasa (private)
     private function pembayaranData()
     {
+        //----- Ambil semua pembayaran, digabung dengan data servis (no_servis & keluhan)
         $rows = DB::table('pembayaran')
             ->leftJoin('servis', 'servis.id', '=', 'pembayaran.servis_id')
             ->select('pembayaran.*', 'servis.no_servis', 'servis.keluhan')
             ->orderBy('pembayaran.id', 'desc')
             ->get();
 
-        $jasaByServis = $this->jasaByServis($rows->pluck('servis_id')->filter()->unique()->all());
-
+        //----- Kumpulkan semua servis_id yang ada supaya bisa dipakai mencari jasa
+        $servisIds = [];
         foreach ($rows as $row) {
-            $jasaList = $jasaByServis->get($row->servis_id, collect());
-            $row->jumlah_bayar = $jasaList->isNotEmpty()
-                ? $jasaList->sum(fn($jasa) => $jasa->jumlah * $jasa->harga)
-                : $row->jumlah_bayar;
-            $row->daftar_jasa = $jasaList->isNotEmpty()
-                ? $jasaList->map(fn($jasa) => $jasa->nama_jasa . ' (' . $jasa->jumlah . 'x)')->implode(', ')
-                : '-';
+            if ($row->servis_id != null) {
+                $ada = false;
+                foreach ($servisIds as $id) {
+                    if ($id == $row->servis_id) {
+                        $ada = true;
+                    }
+                }
+                if (!$ada) {
+                    $servisIds[] = $row->servis_id;
+                }
+            }
         }
 
-        return [
-            'rows' => $rows,
-            'jasaByServis' => $jasaByServis,
-        ];
+        //----- Ambil detail jasa semua servis sekaligus, dikelompokkan per servis_id
+        $jasaByServis = $this->jasaByServis($servisIds);
+
+        //----- Tambahkan rincian jasa dan hitung ulang jumlah bayar ke tiap baris
+        foreach ($rows as $row) {
+            $daftar = [];
+            $total = 0;
+
+            if ($row->servis_id != null) {
+                $jasaList = $jasaByServis->get($row->servis_id);
+
+                if ($jasaList != null) {
+                    foreach ($jasaList as $jasa) {
+                        $daftar[] = $jasa->nama_jasa . ' (' . $jasa->jumlah . 'x) - Rp'
+                            . number_format($jasa->jumlah * $jasa->harga, 0, ',', '.');
+                        $total = $total + ($jasa->jumlah * $jasa->harga);
+                    }
+                }
+            }
+
+            //----- Simpan rincian jasa jadi satu string untuk dipakai di view dan export
+            if (count($daftar) > 0) {
+                $row->daftar_jasa = implode(', ', $daftar);
+                //----- Kalau ada jasa, jumlah bayar dihitung dari total jasa
+                $row->jumlah_bayar = $total;
+            } else {
+                $row->daftar_jasa = '-';
+            }
+        }
+
+        return ['rows' => $rows];
     }
 
     //----- editPembayaran(): Menampilkan form edit pembayaran beserta detail jasa servisnya
@@ -57,6 +89,7 @@ class PembayaranController extends Controller
         return view('edit_pembayaran', [
             'row' => $row,
             'servis' => DB::table('servis')->orderBy('no_servis')->get(),
+            //----- detailJasa = daftar jasa milik servis yang dipilih pembayaran ini
             'detailJasa' => $this->jasaByServis([$row->servis_id])->get($row->servis_id, collect()),
         ]);
     }
@@ -66,10 +99,16 @@ class PembayaranController extends Controller
     {
         if (!session('u')) return redirect('/');
 
+        //----- Ambil jasa servis yang dipilih, lalu hitung totalnya
         $jasa = $this->jasaByServis([$request->servis_id])->get($request->servis_id, collect());
-        $jumlahBayar = $jasa->isNotEmpty()
-            ? $jasa->sum(fn($item) => $item->jumlah * $item->harga)
-            : $request->jumlah_bayar;
+
+        $jumlahBayar = $request->jumlah_bayar;
+        if ($jasa->isNotEmpty()) {
+            $jumlahBayar = 0;
+            foreach ($jasa as $item) {
+                $jumlahBayar = $jumlahBayar + ($item->jumlah * $item->harga);
+            }
+        }
 
         DB::table('pembayaran')->where('id', $id)->update([
             'no_pembayaran' => $request->no_pembayaran,

@@ -27,8 +27,8 @@
                 <div class="mb-3">
                     <label class="fw-semibold">Status</label>
                     <select name="status" class="form-control" required>
-                        <option value="aktif" @selected($row->status == 'aktif')>Aktif</option>
-                        <option value="nonaktif" @selected($row->status == 'nonaktif')>Nonaktif</option>
+                        <option value="aktif" <?php if ($row->status == 'aktif') { ?>selected<?php } ?>>Aktif</option>
+                        <option value="nonaktif" <?php if ($row->status == 'nonaktif') { ?>selected<?php } ?>>Nonaktif</option>
                     </select>
                 </div>
 

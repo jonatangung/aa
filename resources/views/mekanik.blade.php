@@ -31,22 +31,33 @@
                 <tbody>
                     <?php $no = 1; ?>
                     @foreach ($karyawan as $value)
-                        @if ($value->nama)
-                            <tr>
-                                <td><?= $no++ ?></td>
-                                <td>{{ $value->nama }}</td>
-                                <td>{{ $value->no_hp ?: '-' }}</td>
-                                <td>{{ $value->spesialisasi ?: '-' }}</td>
-                                <td>{{ ucfirst($value->status) }}</td>
-                                <td>
-                                    <a href="/edit_mekanik/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
-                                    <form action="/hapus_mekanik/{{ $value->id }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endif
+                        <tr>
+                            <td>{{ $no }}</td>
+                            <?php $no++; ?>
+                            <td>{{ $value->nama }}</td>
+                            <td>
+                                <?php if ($value->no_hp == '') { ?>
+                                    -
+                                <?php } else { ?>
+                                    {{ $value->no_hp }}
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <?php if ($value->spesialisasi == '') { ?>
+                                    -
+                                <?php } else { ?>
+                                    {{ $value->spesialisasi }}
+                                <?php } ?>
+                            </td>
+                            <td>{{ $value->status }}</td>
+                            <td>
+                                <a href="/edit_mekanik/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="/hapus_mekanik/{{ $value->id }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>

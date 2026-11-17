@@ -3,36 +3,25 @@
 @section('content')
 {{-- Halaman daftar pelanggan. Data $pelanggan dikirim dari PelangganController method pelanggan() --}}
 
-    <h1 class="mb-3">Data Pelanggan</h1>
+    <?php $canWrite = \App\Support\RolePermission::boleh('write:pelanggan'); ?>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
-        <a href="/tplg" class="btn btn-secondary">Tambah Pelanggan</a>
-        <div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">Print Window</button>
-            <?php
-            $queryString = request()->getQueryString();
-            if ($queryString != '') {
-                $pdfUrl = '/pelanggan/pdf?' . $queryString;
-                $excelUrl = '/pelanggan/excel?' . $queryString;
-            } else {
-                $pdfUrl = '/pelanggan/pdf';
-                $excelUrl = '/pelanggan/excel';
-            }
-            ?>
-            <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-danger btn-sm">Download PDF</a>
-            <a href="{{ $excelUrl }}" class="btn btn-success btn-sm">Export Excel</a>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="card-title mb-0">Data Pelanggan</h5>
+            <div class="d-flex gap-2 flex-wrap no-print">
+                <?php if ($canWrite) { ?>
+                <a href="/tplg" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-plus-lg-circle"></i> Tambah Pelanggan</a>
+                <?php } ?>
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <a href="/pelanggan/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                <a href="/pelanggan/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
         </div>
-    </div>
 
-    
-
-    {{-- Tabel daftar pelanggan --}}
-    <div class="card mt-3">
-        <div class="card-body table-responsive">
-            <h5 class="card-title">Daftar Pelanggan</h5>
-
-            <table id="users-table" class="table table-bordered table-striped align-middle">
-                <thead class="table-dark text-center">
+        <div class="card-body">
+            {{-- Tabel daftar pelanggan --}}
+            <table class="table table-hover table-striped align-middle datatable">
+                <thead class="table-warning">
                     <tr>
                         <th>No</th>
                         <th>Nama Pelanggan</th>
@@ -54,11 +43,15 @@
                             <td>{{ $value->email }}</td>
                             <td>{{ $value->no_hp }}</td>
                             <td>
-                                <a href="/edit_pelanggan/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="/hapus_pelanggan/{{ $value->id }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
+                                <div class="d-flex gap-1">
+                                    <?php if ($canWrite) { ?>
+                                    <a href="/edit_pelanggan/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                    <form action="/hapus_pelanggan/{{ $value->id }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger btn-sm rounded-pill" title="Hapus"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                    <?php } ?>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

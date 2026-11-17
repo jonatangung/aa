@@ -3,19 +3,22 @@
 @section('content')
 {{-- Halaman daftar pengguna. Data $rows dikirim dari PenggunaController method pengguna() --}}
 
-    <h1 class="mb-3">Manajemen Pengguna</h1>
+    <?php $canWrite = \App\Support\RolePermission::boleh('write:pengguna'); ?>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
-        <a href="/tambah_users" class="btn btn-secondary">Tambah Pengguna</a>
-    </div>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="card-title mb-0">Manajemen Pengguna</h5>
+            <div class="d-flex gap-2 flex-wrap no-print">
+                <?php if ($canWrite) { ?>
+                <a href="/tambah_users" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-person-plus"></i> Tambah Pengguna</a>
+                <?php } ?>
+            </div>
+        </div>
 
-    {{-- Tabel daftar pengguna --}}
-    <div class="card mt-3">
-        <div class="card-body table-responsive">
-            <h5 class="card-title">Manajemen Pengguna</h5>
-
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark text-center">
+        <div class="card-body">
+            {{-- Tabel daftar pengguna --}}
+            <table class="table table-hover table-striped align-middle datatable">
+                <thead class="table-warning">
                     <tr>
                         <th>No</th>
                         <th>Foto</th>
@@ -34,24 +37,26 @@
                         <tr>
                             <td>{{ $no }}</td>
                             <?php $no++; ?>
-                            <td class="text-center">
+                            <td>
                                 <?php if ($value->foto != null && $value->foto != '') { ?>
-                                    <img src="{{ asset('uploads/' . $value->foto) }}" width="50" height="50" class="rounded">
+                                    <img src="{{ asset('uploads/' . $value->foto) }}" width="40" height="40" class="rounded-circle">
                                 <?php } else { ?>
-                                    <span class="text-muted">-</span>
+                                    <span class="badge bg-secondary rounded-circle p-2">-</span>
                                 <?php } ?>
                             </td>
                             <td>{{ $value->nama }}</td>
                             <td>{{ $value->email }}</td>
-                            <td>{{ $value->role }}</td>
+                            <td><span class="badge rounded-pill bg-primary">{{ ucfirst($value->role) }}</span></td>
                             <td>{{ $value->no_hp }}</td>
                             <?php if ($value->is_active == 1) { ?>
-                                <td>Aktif</td>
+                                <td><span class="badge rounded-pill bg-success">Aktif</span></td>
                             <?php } else { ?>
-                                <td>Tidak Aktif</td>
+                                <td><span class="badge rounded-pill bg-secondary">Tidak Aktif</span></td>
                             <?php } ?>
                             <td>
-                                <a href="/edit_users/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
+                                <?php if ($canWrite) { ?>
+                                <a href="/edit_users/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                <?php } ?>
                             </td>
                         </tr>
                     @endforeach

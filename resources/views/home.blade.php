@@ -1,20 +1,25 @@
 @extends('template')
 
 @section('content')
-{{-- Halaman dashboard. Data jumlah pelanggan, kendaraan, mekanik, servis dikirim dari LoginController method home() --}}
+{{-- Halaman dashboard. Kartu menu mengikuti sidebar (menu.blade.php) dan hak akses role (App\Support\RolePermission) --}}
 
-    <?php $role = session('role'); ?>
-    <h1 class="no-print mb-1">Dashboard Bengkel Motor</h1>
+    <?php
+        $role = session('role');
+        $canView = fn (string $resource) => \App\Support\RolePermission::boleh('view:' . $resource, $role);
+    ?>
+    <div class="pagetitle no-print">
+        <h1>Dashboard Bengkel Pintar</h1>
+    </div>
     <p class="text-muted mb-4">Selamat datang, {{ session('u') }} ({{ $role }})</p>
 
-    {{-- Kartu menu cepat, tiap kartu hanya tampil sesuai role user --}}
+    {{-- Kartu menu cepat, tiap kartu hanya tampil sesuai hak akses role user --}}
     <div class="row no-print mb-4">
-        <?php if (in_array($role, ['owner', 'kasir'])) { ?>
+        <?php if ($canView('pelanggan')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/pelanggan" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-person fs-1 text-primary"></i>
+                        <i class="bi bi-person fs-1 text-warning"></i>
                         <h5 class="mt-2 text-dark">Data Pelanggan</h5>
                         <p class="small text-muted mb-0">Kelola data pelanggan</p>
                     </div>
@@ -23,24 +28,40 @@
         </div>
         <?php } ?>
 
-        <?php if (in_array($role, ['owner', 'admin'])) { ?>
+        <?php if ($canView('kendaraan')) { ?>
+        <div class="col-md-6 col-xl-3 mb-3">
+            <a href="/kendaraan" class="text-decoration-none">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-car-front fs-1 text-warning"></i>
+                        <h5 class="mt-2 text-dark">Data Kendaraan</h5>
+                        <p class="small text-muted mb-0">Kelola data kendaraan</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <?php } ?>
+
+        <?php if ($canView('mekanik')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/mekanik" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-person-badge fs-1 text-primary"></i>
+                        <i class="bi bi-person-badge fs-1 text-warning"></i>
                         <h5 class="mt-2 text-dark">Data Mekanik</h5>
                         <p class="small text-muted mb-0">Kelola data Mekanik</p>
                     </div>
                 </div>
             </a>
         </div>
+        <?php } ?>
 
+        <?php if ($canView('jasa_servis')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/jasa-servis" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-wrench-adjustable fs-1 text-primary"></i>
+                        <i class="bi bi-wrench-adjustable fs-1 text-warning"></i>
                         <h5 class="mt-2 text-dark">Data Jasa Servis</h5>
                         <p class="small text-muted mb-0">Kelola jenis dan harga jasa</p>
                     </div>
@@ -49,12 +70,12 @@
         </div>
         <?php } ?>
 
-        <?php if ($role === 'owner') { ?>
+        <?php if ($canView('supplier')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/supplier" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-truck fs-1 text-primary"></i>
+                        <i class="bi bi-truck fs-1 text-warning"></i>
                         <h5 class="mt-2 text-dark">Data Supplier</h5>
                         <p class="small text-muted mb-0">Kelola data supplier</p>
                     </div>
@@ -63,12 +84,12 @@
         </div>
         <?php } ?>
 
-        <?php if (in_array($role, ['owner', 'kasir'])) { ?>
+        <?php if ($canView('servis')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/servis" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-cart-check fs-1 text-primary"></i>
+                        <i class="bi bi-cart-check fs-1 text-warning"></i>
                         <h5 class="mt-2 text-dark">Transaksi Servis</h5>
                         <p class="small text-muted mb-0">Kelola transaksi bengkel</p>
                     </div>
@@ -77,12 +98,12 @@
         </div>
         <?php } ?>
 
-        <?php if ($role === 'owner') { ?>
+        <?php if ($canView('pembayaran')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
             <a href="/pembayaran" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-cash-stack fs-1 text-primary"></i>
+                        <i class="bi bi-cash-stack fs-1 text-warning"></i>
                         <h5 class="mt-2 text-dark">Pembayaran</h5>
                         <p class="small text-muted mb-0">Kelola pembayaran servis</p>
                     </div>
@@ -91,19 +112,73 @@
         </div>
         <?php } ?>
 
-        <?php if (in_array($role, ['owner', 'karyawan'])) { ?>
+        <?php if ($canView('laporan_servis')) { ?>
         <div class="col-md-6 col-xl-3 mb-3">
-            <a href="/kendaraan" class="text-decoration-none">
-                <div class="card shadow-sm h-100">
+            <a href="/laporan-servis" class="text-decoration-none">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
-                        <i class="bi bi-car-front fs-1 text-primary"></i>
-                        <h5 class="mt-2 text-dark">Data Kendaraan</h5>
-                        <p class="small text-muted mb-0">Kelola data kendaraan</p>
+                        <i class="bi bi-file-earmark-text fs-1 text-warning"></i>
+                        <h5 class="mt-2 text-dark">Laporan Servis</h5>
+                        <p class="small text-muted mb-0">Lihat laporan transaksi servis</p>
                     </div>
                 </div>
             </a>
         </div>
         <?php } ?>
+
+        <?php if ($canView('laporan_pendapatan')) { ?>
+        <div class="col-md-6 col-xl-3 mb-3">
+            <a href="/laporan-pendapatan" class="text-decoration-none">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-bar-chart fs-1 text-warning"></i>
+                        <h5 class="mt-2 text-dark">Laporan Pendapatan</h5>
+                        <p class="small text-muted mb-0">Lihat laporan pendapatan</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <?php } ?>
+
+        <?php if ($canView('stok_barang')) { ?>
+        <div class="col-md-6 col-xl-3 mb-3">
+            <a href="/stok-barang" class="text-decoration-none">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box-seam fs-1 text-warning"></i>
+                        <h5 class="mt-2 text-dark">Stok Barang</h5>
+                        <p class="small text-muted mb-0">Kelola stok barang</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <?php } ?>
+
+        <?php if ($canView('pengguna')) { ?>
+        <div class="col-md-6 col-xl-3 mb-3">
+            <a href="/pengguna" class="text-decoration-none">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people fs-1 text-warning"></i>
+                        <h5 class="mt-2 text-dark">Manajemen Pengguna</h5>
+                        <p class="small text-muted mb-0">Kelola akun pengguna</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <?php } ?>
+
+        <div class="col-md-6 col-xl-3 mb-3">
+            <a href="/profil" class="text-decoration-none">
+                <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-gear fs-1 text-warning"></i>
+                        <h5 class="mt-2 text-dark">Pengaturan Profil</h5>
+                        <p class="small text-muted mb-0">Kelola profil akun</p>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 
 @endsection

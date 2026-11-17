@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\StokBarangExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- StokBarangController: menangani rekap dan transaksi stok barang (masuk/keluar) beserta export PDF/Excel
@@ -15,7 +16,7 @@ class StokBarangController extends Controller
     //----- stokBarang(): Menampilkan halaman rekap stok barang
     public function stokBarang(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:stok_barang');
 
         return view('stok-barang', ['rows' => $this->stokBarangData()]);
     }
@@ -41,7 +42,7 @@ class StokBarangController extends Controller
     //----- inputStokBarang(): Menampilkan form kelola stok dengan pilihan barang dari supplier
     public function inputStokBarang(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:stok_barang');
 
         //----- Cari barang yang dipilih lewat dropdown (kosong = belum pilih)
         $selectedBarang = null;
@@ -60,28 +61,27 @@ class StokBarangController extends Controller
     //----- stokMasuk(): Mencatat transaksi stok masuk dan memperbarui tanggal_masuk supplier
     public function stokMasuk(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:stok_barang');
 
-        if (!$request->supplier_id || (int) $request->jumlah < 1) {
-            return redirect('/stok-barang');
-        }
+        $validated = $request->validate([
+            'supplier_id' => 'required|integer|exists:supplier,id',
+            'jumlah' => 'required|integer|min:1',
+            'tanggal' => 'nullable|date',
+        ]);
 
         //----- Tanggal kosong berarti pakai tanggal hari ini
-        $tanggal = $request->tanggal;
-        if ($tanggal == null || $tanggal == '') {
-            $tanggal = now()->toDateString();
-        }
+        $tanggal = $validated['tanggal'] ?? now()->toDateString();
 
         DB::table('stok_barang')->insert([
-            'supplier_id' => $request->supplier_id,
+            'supplier_id' => $validated['supplier_id'],
             'jenis' => 'masuk',
-            'jumlah' => $request->jumlah,
+            'jumlah' => $validated['jumlah'],
             'tanggal' => $tanggal,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        DB::table('supplier')->where('id', $request->supplier_id)->update([
+        DB::table('supplier')->where('id', $validated['supplier_id'])->update([
             'tanggal_masuk' => $tanggal,
             'updated_at' => now(),
         ]);
@@ -92,22 +92,24 @@ class StokBarangController extends Controller
     //----- stokKeluar(): Mencatat transaksi stok keluar dan memperbarui harga_jual barang
     public function stokKeluar(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:stok_barang');
+
+        $validated = $request->validate([
+            'jumlah' => 'required|integer|min:1',
+            'tanggal' => 'nullable|date',
+            'harga_jual' => 'nullable|numeric|min:0',
+        ]);
 
         $supplier = DB::table('supplier')->where('id', $id)->first();
-        $jumlah = (int) $request->jumlah;
+        abort_if($supplier === null, 404);
+
+        $jumlah = (int) $validated['jumlah'];
 
         //----- Harga jual dan tanggal kosong diisi nilai default
-        $hargaJual = $request->harga_jual;
-        if ($hargaJual == null || $hargaJual == '') {
-            $hargaJual = 0;
-        }
-        $tanggal = $request->tanggal;
-        if ($tanggal == null || $tanggal == '') {
-            $tanggal = now()->toDateString();
-        }
+        $hargaJual = $validated['harga_jual'] ?? 0;
+        $tanggal = $validated['tanggal'] ?? now()->toDateString();
 
-        if ($supplier && $jumlah > 0) {
+        if ($jumlah > 0) {
             DB::table('supplier')->where('id', $id)->update([
                 'harga_jual' => $hargaJual,
                 'updated_at' => now(),
@@ -129,7 +131,7 @@ class StokBarangController extends Controller
     //----- pdfStokBarang(): Mengunduh laporan stok barang dalam format PDF
     public function pdfStokBarang()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:stok_barang');
 
         $export = new StokBarangExport($this->stokBarangData());
 
@@ -139,7 +141,7 @@ class StokBarangController extends Controller
     //----- excelStokBarang(): Mengunduh laporan stok barang dalam format Excel (.xlsx)
     public function excelStokBarang()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:stok_barang');
 
         return Excel::download(
             new StokBarangExport($this->stokBarangData()),

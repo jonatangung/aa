@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\SupplierExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- SupplierController: menangani CRUD data supplier/barang beserta export PDF/Excel
@@ -15,7 +16,7 @@ class SupplierController extends Controller
     //----- supplier(): Menampilkan halaman daftar supplier/barang. Mengirim data $rows ke view supplier
     public function supplier()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:supplier');
 
         // $rows ini yang dipakai di view supplier sebagai $rows
         return view('supplier', ['rows' => $this->supplierData()]);
@@ -30,7 +31,7 @@ class SupplierController extends Controller
     //----- tambahSupplier(): Menampilkan form tambah supplier/barang baru
     public function tambahSupplier()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:supplier');
 
         return view('input_supplier');
     }
@@ -38,44 +39,43 @@ class SupplierController extends Controller
     //----- simpanSupplier(): Menyimpan supplier baru beserta catatan stok masuk awal jika ada. insertGetId() = simpan data dan ambil id baru
     public function simpanSupplier(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:supplier');
 
-        if ($request->harga == '') {
-            $harga = 0;
-        } else {
-            $harga = $request->harga;
-        }
+        $validated = $request->validate([
+            'nama_supplier' => 'required|string|max:255',
+            'nama_barang' => 'required|string|max:255',
+            'harga' => 'nullable|numeric|min:0',
+            'stok' => 'nullable|integer|min:0',
+            'tanggal_masuk' => 'nullable|date',
+            'kontak_person' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'alamat' => 'nullable|string|max:500',
+        ]);
 
-        if ($request->tanggal_masuk == '') {
-            $tanggalMasuk = now()->toDateString();
-        } else {
-            $tanggalMasuk = $request->tanggal_masuk;
-        }
+        $harga = $validated['harga'] ?? 0;
+        $tanggalMasuk = $validated['tanggal_masuk'] ?? now()->toDateString();
 
         $supplierId = DB::table('supplier')->insertGetId([
-            'nama_supplier' => $request->nama_supplier,
-            'nama_barang' => $request->nama_barang,
+            'nama_supplier' => $validated['nama_supplier'],
+            'nama_barang' => $validated['nama_barang'],
             'stok' => 0,
             'harga' => $harga,
             'tanggal_masuk' => $tanggalMasuk,
-            'kontak_person' => $request->kontak_person,
-            'no_hp' => $request->no_hp,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
+            'kontak_person' => $validated['kontak_person'],
+            'no_hp' => $validated['no_hp'],
+            'email' => $validated['email'],
+            'alamat' => $validated['alamat'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        if ((int) $request->stok > 0) {
-            if ($request->tanggal_masuk == '') {
-                $tanggalStok = now()->toDateString();
-            } else {
-                $tanggalStok = $request->tanggal_masuk;
-            }
+        if ((int) ($validated['stok'] ?? 0) > 0) {
+            $tanggalStok = $validated['tanggal_masuk'] ?? now()->toDateString();
             DB::table('stok_barang')->insert([
                 'supplier_id' => $supplierId,
                 'jenis' => 'masuk',
-                'jumlah' => $request->stok,
+                'jumlah' => $validated['stok'],
                 'tanggal' => $tanggalStok,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -88,48 +88,54 @@ class SupplierController extends Controller
     //----- editSupplier(): Menampilkan form edit supplier/barang berdasarkan id. Mengirim data $row ke view edit_supplier
     public function editSupplier($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:supplier');
+
+        $row = DB::table('supplier')->where('id', $id)->first();
+        abort_if($row === null, 404);
 
         // $row ini yang dipakai di view edit_supplier sebagai $row
-        return view('edit_supplier', [
-            'row' => DB::table('supplier')->where('id', $id)->first(),
-        ]);
+        return view('edit_supplier', ['row' => $row]);
     }
 
     //----- updateSupplier(): Memperbarui data supplier dan mencatat selisih stok (masuk/keluar). update() = ubah data di database
     public function updateSupplier(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:supplier');
+
+        $validated = $request->validate([
+            'nama_supplier' => 'required|string|max:255',
+            'nama_barang' => 'required|string|max:255',
+            'harga' => 'nullable|numeric|min:0',
+            'stok' => 'required|integer|min:0',
+            'tanggal_masuk' => 'nullable|date',
+            'kontak_person' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'alamat' => 'nullable|string|max:500',
+        ]);
 
         $supplier = DB::table('supplier')->where('id', $id)->first();
-        $stokLama = (int) $supplier->stok;
-        $stokBaru = (int) $request->stok;
+        abort_if($supplier === null, 404);
 
-        if ($request->harga == '') {
-            $harga = 0;
-        } else {
-            $harga = $request->harga;
-        }
+        $stokLama = (int) $supplier->stok;
+        $stokBaru = (int) $validated['stok'];
+        $harga = $validated['harga'] ?? 0;
 
         DB::table('supplier')->where('id', $id)->update([
-            'nama_supplier' => $request->nama_supplier,
-            'nama_barang' => $request->nama_barang,
+            'nama_supplier' => $validated['nama_supplier'],
+            'nama_barang' => $validated['nama_barang'],
             'harga' => $harga,
-            'tanggal_masuk' => $request->tanggal_masuk,
-            'kontak_person' => $request->kontak_person,
-            'no_hp' => $request->no_hp,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
+            'tanggal_masuk' => $validated['tanggal_masuk'],
+            'kontak_person' => $validated['kontak_person'],
+            'no_hp' => $validated['no_hp'],
+            'email' => $validated['email'],
+            'alamat' => $validated['alamat'],
             'updated_at' => now(),
         ]);
 
         if ($stokBaru > $stokLama) {
             $selisih = $stokBaru - $stokLama;
-            if ($request->tanggal_masuk == '') {
-                $tanggalStok = now()->toDateString();
-            } else {
-                $tanggalStok = $request->tanggal_masuk;
-            }
+            $tanggalStok = $validated['tanggal_masuk'] ?? now()->toDateString();
             DB::table('stok_barang')->insert([
                 'supplier_id' => $id,
                 'jenis' => 'masuk',
@@ -144,7 +150,7 @@ class SupplierController extends Controller
                 'supplier_id' => $id,
                 'jenis' => 'keluar',
                 'jumlah' => $selisih,
-                'tanggal' => now()->toDateString(),
+                'tanggal' => $validated['tanggal_masuk'] ?? now()->toDateString(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -156,7 +162,7 @@ class SupplierController extends Controller
     //----- hapusSupplier(): Menghapus data supplier/barang berdasarkan id. delete() = hapus data dari database
     public function hapusSupplier($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:supplier');
 
         DB::table('supplier')->where('id', $id)->delete();
         return redirect('/supplier');
@@ -165,7 +171,7 @@ class SupplierController extends Controller
     //----- pdfSupplier(): Mengunduh laporan data supplier dalam format PDF
     public function pdfSupplier()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:supplier');
 
         $export = new SupplierExport($this->supplierData());
 
@@ -175,7 +181,7 @@ class SupplierController extends Controller
     //----- excelSupplier(): Mengunduh laporan data supplier dalam format Excel (.xlsx)
     public function excelSupplier()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:supplier');
 
         return Excel::download(
             new SupplierExport($this->supplierData()),

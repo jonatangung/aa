@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use App\Support\RolePermission;
 
 //----- LoginController: menangani halaman login, logout, registrasi, dan dashboard home
 class LoginController extends Controller
@@ -18,17 +19,35 @@ class LoginController extends Controller
 
     //----- aksilogin(): Memproses login — cek username/email & password, simpan session lalu redirect ke home
     public function aksilogin(Request $request){
-        $username = $request->input('u');
-        $password = $request->input('p');
+        $validated = $request->validate([
+            'u' => 'required|string|max:255',
+            'p' => 'required|string|max:255',
+        ]);
 
+        $username = $validated['u'];
+        $password = $validated['p'];
+
+        // cari user di tabel users: cocokkan username dengan kolom nama ATAU email
         $hasilcek = DB::table('users')
-            ->where(function ($query) use ($username) {
-                $query->where('nama', $username)
-                    ->orWhere('email', $username);
-            })
-            ->first();
+            ->where('nama', $username) // cocokkan dengan kolom nama
+            ->orWhere('email', $username) // atau cocokkan dengan kolom email
+            ->first(); // ambil satu data pertama yang cocok
 
-        $passwordValid = $hasilcek && $hasilcek->password === $password;
+        // password baru disimpan sebagai hash bcrypt; password lama masih plaintext
+        // jadi tetap bisa login, lalu otomatis di-hash ulang ke database
+        $passwordValid = false;
+        if ($hasilcek) {
+            if (str_starts_with((string) $hasilcek->password, '$2y$')) {
+                $passwordValid = Hash::check($password, $hasilcek->password);
+            } else {
+                $passwordValid = hash_equals((string) $hasilcek->password, $password);
+                if ($passwordValid) {
+                    DB::table('users')->where('id', $hasilcek->id)->update([
+                        'password' => Hash::make($password),
+                    ]);
+                }
+            }
+        }
 
         if($passwordValid){
             DB::table('users')->where('id', $hasilcek->id)->update([
@@ -76,15 +95,31 @@ class LoginController extends Controller
         return redirect('/');
     }
 
-    //----- register(): Menampilkan halaman registrasi user baru
+    //----- register(): Menampilkan halaman registrasi — hanya untuk setup awal saat belum ada user sama sekali
     public function register()
     {
+        if (DB::table('users')->count() > 0) {
+            return redirect('/login');
+        }
+
         return view('girasya');
     }
 
-    //----- simpanRegister(): Menyimpan user baru dari form registrasi (role admin)
+    //----- simpanRegister(): Menyimpan admin pertama (hanya bisa saat tabel users masih kosong)
     public function simpanRegister(Request $request)
     {
+        //----- Registrasi publik hanya untuk setup awal; setelah ada user, halaman ini ditutup
+        if (DB::table('users')->count() > 0) {
+            return redirect('/login');
+        }
+
+        $validated = $request->validate([
+            'u' => 'required|string|max:255',
+            'e' => 'required|email|max:255|unique:users,email',
+            'p' => 'required|string|min:6|max:255',
+            'foto' => 'nullable|image|max:2048',
+        ]);
+
         $fotoPath = null;
         if ($request->hasFile('foto')) {
           $file = $request->file('foto');
@@ -94,9 +129,9 @@ class LoginController extends Controller
         }
 
         DB::table('users')->insert([
-            'nama' => $request->u,
-            'email' => $request->e,
-            'password' => $request->p,
+            'nama' => $validated['u'],
+            'email' => $validated['e'],
+            'password' => Hash::make($validated['p']),
             'role' => 'admin',
             'no_hp' => null,
             'foto' => $fotoPath,
@@ -110,16 +145,21 @@ class LoginController extends Controller
 
     //----- home(): Menampilkan dashboard beserta jumlah pelanggan, kendaraan, mekanik, dan servis
     public function home(Request $request){
-        if (session('u')){
-            return view('home', [
-                'pelanggan' => DB::table('pelanggan')->count(),
-                'kendaraan' => DB::table('kendaraan')->count(),
-                'mekanik' => DB::table('mekanik')->count(),
-                'servis' => DB::table('servis')->count(),
-            ]);
-        }
-        else{
-            return redirect('/');
+        // cek login sudah ditangani middleware 'auth' di routes/web.php, jadi langsung tampilkan view
+        $role = session('role');
+
+        //----- Statistik hanya dihitung untuk resource yang boleh dilihat role tsb (anti bocor data)
+        $countIfCanView = function (string $resource, string $table) use ($role) {
+            return RolePermission::boleh('view:' . $resource, $role)
+                ? DB::table($table)->count()
+                : null;
         };
+
+        return view('home', [
+            'pelanggan' => $countIfCanView('pelanggan', 'pelanggan'),
+            'kendaraan' => $countIfCanView('kendaraan', 'kendaraan'),
+            'mekanik' => $countIfCanView('mekanik', 'mekanik'),
+            'servis' => $countIfCanView('servis', 'servis'),
+        ]);
     }
 }

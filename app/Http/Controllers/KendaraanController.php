@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\KendaraanExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- KendaraanController: menangani CRUD data kendaraan beserta export PDF/Excel
@@ -15,7 +16,7 @@ class KendaraanController extends Controller
     //----- kendaraan(): Menampilkan halaman daftar kendaraan. Mengirim data $rows ke view kendaraan
     public function kendaraan()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:kendaraan');
 
         // $rows ini yang dipakai di view kendaraan sebagai $rows
         return view('kendaraan', ['rows' => $this->kendaraanData()]);
@@ -34,7 +35,7 @@ class KendaraanController extends Controller
     //----- tambahKendaraan(): Menampilkan form tambah kendaraan baru (beserta daftar pelanggan). Mengirim data $pelanggan ke view input_kendaraan
     public function tambahKendaraan()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:kendaraan');
 
         // $pelanggan ini yang dipakai di view input_kendaraan sebagai $pelanggan
         return view('input_kendaraan', [
@@ -48,17 +49,28 @@ class KendaraanController extends Controller
     //----- simpanKendaraan(): Menyimpan data kendaraan baru ke database
     public function simpanKendaraan(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:kendaraan');
+
+        $validated = $request->validate([
+            'pelanggan_id' => 'required|integer|exists:pelanggan,id',
+            'no_polisi' => 'required|string|max:20',
+            'merk' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'tahun' => 'nullable|integer|min:1900|max:2100',
+            'warna' => 'nullable|string|max:50',
+            'no_rangka' => 'nullable|string|max:100',
+            'no_mesin' => 'nullable|string|max:100',
+        ]);
 
         DB::table('kendaraan')->insert([
-            'pelanggan_id' => $request->pelanggan_id,
-            'no_polisi' => $request->no_polisi,
-            'merk' => $request->merk,
-            'model' => $request->model,
-            'tahun' => $request->tahun,
-            'warna' => $request->warna,
-            'no_rangka' => $request->no_rangka,
-            'no_mesin' => $request->no_mesin,
+            'pelanggan_id' => $validated['pelanggan_id'],
+            'no_polisi' => $validated['no_polisi'],
+            'merk' => $validated['merk'],
+            'model' => $validated['model'],
+            'tahun' => $validated['tahun'],
+            'warna' => $validated['warna'],
+            'no_rangka' => $validated['no_rangka'],
+            'no_mesin' => $validated['no_mesin'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -69,11 +81,14 @@ class KendaraanController extends Controller
     //----- editKendaraan(): Menampilkan form edit kendaraan berdasarkan id. Mengirim data $row dan $pelanggan ke view edit_kendaraan
     public function editKendaraan($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:kendaraan');
+
+        $row = DB::table('kendaraan')->where('id', $id)->first();
+        abort_if($row === null, 404);
 
         // $row dan $pelanggan ini yang dipakai di view edit_kendaraan
         return view('edit_kendaraan', [
-            'row' => DB::table('kendaraan')->where('id', $id)->first(),
+            'row' => $row,
             'pelanggan' => DB::table('pelanggan')->orderBy('nama')->get(),
         ]);
     }
@@ -81,17 +96,28 @@ class KendaraanController extends Controller
     //----- updateKendaraan(): Memperbarui data kendaraan yang dipilih. update() = ubah data di database
     public function updateKendaraan(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:kendaraan');
+
+        $validated = $request->validate([
+            'pelanggan_id' => 'required|integer|exists:pelanggan,id',
+            'no_polisi' => 'required|string|max:20',
+            'merk' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'tahun' => 'nullable|integer|min:1900|max:2100',
+            'warna' => 'nullable|string|max:50',
+            'no_rangka' => 'nullable|string|max:100',
+            'no_mesin' => 'nullable|string|max:100',
+        ]);
 
         DB::table('kendaraan')->where('id', $id)->update([
-            'pelanggan_id' => $request->pelanggan_id,
-            'no_polisi' => $request->no_polisi,
-            'merk' => $request->merk,
-            'model' => $request->model,
-            'tahun' => $request->tahun,
-            'warna' => $request->warna,
-            'no_rangka' => $request->no_rangka,
-            'no_mesin' => $request->no_mesin,
+            'pelanggan_id' => $validated['pelanggan_id'],
+            'no_polisi' => $validated['no_polisi'],
+            'merk' => $validated['merk'],
+            'model' => $validated['model'],
+            'tahun' => $validated['tahun'],
+            'warna' => $validated['warna'],
+            'no_rangka' => $validated['no_rangka'],
+            'no_mesin' => $validated['no_mesin'],
             'updated_at' => now(),
         ]);
         return redirect('/kendaraan');
@@ -100,7 +126,7 @@ class KendaraanController extends Controller
     //----- hapusKendaraan(): Menghapus data kendaraan berdasarkan id. delete() = hapus data dari database
     public function hapusKendaraan($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:kendaraan');
 
         DB::table('kendaraan')->where('id', $id)->delete();
         return redirect('/kendaraan');
@@ -109,7 +135,7 @@ class KendaraanController extends Controller
     //----- pdfKendaraan(): Mengunduh laporan data kendaraan dalam format PDF
     public function pdfKendaraan()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:kendaraan');
 
         $export = new KendaraanExport($this->kendaraanData());
 
@@ -119,7 +145,7 @@ class KendaraanController extends Controller
     //----- excelKendaraan(): Mengunduh laporan data kendaraan dalam format Excel (.xlsx)
     public function excelKendaraan()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:kendaraan');
 
         return Excel::download(
             new KendaraanExport($this->kendaraanData()),

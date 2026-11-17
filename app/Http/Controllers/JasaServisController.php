@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\JasaServisExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- JasaServisController: menangani CRUD data jasa servis beserta export PDF/Excel
@@ -15,7 +16,7 @@ class JasaServisController extends Controller
     //----- jasaServis(): Menampilkan halaman daftar jasa servis. Mengirim data $rows ke view jasa-servis
     public function jasaServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:jasa_servis');
 
         // $rows ini yang dipakai di view jasa-servis sebagai $rows
         return view('jasa-servis', ['rows' => $this->jasaServisData()]);
@@ -30,7 +31,7 @@ class JasaServisController extends Controller
     //----- tambahJasaServis(): Menampilkan form tambah jasa servis baru
     public function tambahJasaServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:jasa_servis');
 
         return view('input_jasa_servis');
     }
@@ -38,7 +39,14 @@ class JasaServisController extends Controller
     //----- simpanJasaServis(): Menyimpan jasa servis baru dengan kode otomatis JS_xxx. insert() = simpan data baru
     public function simpanJasaServis(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:jasa_servis');
+
+        $validated = $request->validate([
+            'nama_jasa' => 'required|string|max:255',
+            'harga' => 'required|numeric|min:0',
+            'estimasi_menit' => 'nullable|integer|min:0',
+            'deskripsi' => 'nullable|string|max:1000',
+        ]);
 
         $lastKode = DB::table('jasa_servis')
             ->where('kode_jasa', 'like', 'JS_%')
@@ -62,10 +70,10 @@ class JasaServisController extends Controller
 
         DB::table('jasa_servis')->insert([
             'kode_jasa' => $kodeJasa,
-            'nama_jasa' => $request->nama_jasa,
-            'harga' => $request->harga,
-            'estimasi_menit' => $request->estimasi_menit,
-            'deskripsi' => $request->deskripsi,
+            'nama_jasa' => $validated['nama_jasa'],
+            'harga' => $validated['harga'],
+            'estimasi_menit' => $validated['estimasi_menit'],
+            'deskripsi' => $validated['deskripsi'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -76,25 +84,34 @@ class JasaServisController extends Controller
     //----- editJasaServis(): Menampilkan form edit jasa servis berdasarkan id. Mengirim data $row ke view edit_jasa_servis
     public function editJasaServis($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:jasa_servis');
+
+        $row = DB::table('jasa_servis')->where('id', $id)->first();
+        abort_if($row === null, 404);
 
         // $row ini yang dipakai di view edit_jasa_servis sebagai $row
-        return view('edit_jasa_servis', [
-            'row' => DB::table('jasa_servis')->where('id', $id)->first(),
-        ]);
+        return view('edit_jasa_servis', ['row' => $row]);
     }
 
     //----- updateJasaServis(): Memperbarui data jasa servis yang dipilih. update() = ubah data di database
     public function updateJasaServis(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:jasa_servis');
+
+        $validated = $request->validate([
+            'kode_jasa' => 'required|string|max:50',
+            'nama_jasa' => 'required|string|max:255',
+            'harga' => 'required|numeric|min:0',
+            'estimasi_menit' => 'nullable|integer|min:0',
+            'deskripsi' => 'nullable|string|max:1000',
+        ]);
 
         DB::table('jasa_servis')->where('id', $id)->update([
-            'kode_jasa' => $request->kode_jasa,
-            'nama_jasa' => $request->nama_jasa,
-            'harga' => $request->harga,
-            'estimasi_menit' => $request->estimasi_menit,
-            'deskripsi' => $request->deskripsi,
+            'kode_jasa' => $validated['kode_jasa'],
+            'nama_jasa' => $validated['nama_jasa'],
+            'harga' => $validated['harga'],
+            'estimasi_menit' => $validated['estimasi_menit'],
+            'deskripsi' => $validated['deskripsi'],
             'updated_at' => now(),
         ]);
         return redirect('/jasa-servis');
@@ -103,7 +120,7 @@ class JasaServisController extends Controller
     //----- hapusJasaServis(): Menghapus jasa servis beserta relasi servis_jasa-nya. delete() = hapus data dari database
     public function hapusJasaServis($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:jasa_servis');
 
         DB::table('servis_jasa')->where('jasa_servis_id', $id)->delete();
         DB::table('jasa_servis')->where('id', $id)->delete();
@@ -113,7 +130,7 @@ class JasaServisController extends Controller
     //----- pdfJasaServis(): Mengunduh laporan data jasa servis dalam format PDF
     public function pdfJasaServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:jasa_servis');
 
         $export = new JasaServisExport($this->jasaServisData());
 
@@ -123,7 +140,7 @@ class JasaServisController extends Controller
     //----- excelJasaServis(): Mengunduh laporan data jasa servis dalam format Excel (.xlsx)
     public function excelJasaServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:jasa_servis');
 
         return Excel::download(
             new JasaServisExport($this->jasaServisData()),

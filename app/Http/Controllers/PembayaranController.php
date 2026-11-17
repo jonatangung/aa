@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\PembayaranExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- PembayaranController: menangani edit/hapus pembayaran beserta export PDF/Excel
@@ -15,7 +16,7 @@ class PembayaranController extends Controller
     //----- pembayaran(): Menampilkan halaman daftar pembayaran, data dikirim ke view pembayaran
     public function pembayaran()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:pembayaran');
 
         return view('pembayaran', $this->pembayaranData());
     }
@@ -82,9 +83,10 @@ class PembayaranController extends Controller
     //----- editPembayaran(): Menampilkan form edit pembayaran beserta detail jasa servisnya
     public function editPembayaran($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pembayaran');
 
         $row = DB::table('pembayaran')->where('id', $id)->first();
+        abort_if($row === null, 404);
 
         return view('edit_pembayaran', [
             'row' => $row,
@@ -97,12 +99,22 @@ class PembayaranController extends Controller
     //----- updatePembayaran(): Memperbarui data pembayaran dan menghitung ulang jumlah bayar dari jasa
     public function updatePembayaran(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pembayaran');
+
+        $validated = $request->validate([
+            'no_pembayaran' => 'nullable|string|max:30',
+            'servis_id' => 'required|integer|exists:servis,id',
+            'tanggal' => 'nullable|date',
+            'metode' => 'required|in:tunai,transfer,qris,debit,kredit',
+            'jumlah_bayar' => 'nullable|numeric|min:0',
+            'no_referensi' => 'nullable|string|max:50',
+            'catatan' => 'nullable|string|max:1000',
+        ]);
 
         //----- Ambil jasa servis yang dipilih, lalu hitung totalnya
-        $jasa = $this->jasaByServis([$request->servis_id])->get($request->servis_id, collect());
+        $jasa = $this->jasaByServis([$validated['servis_id']])->get($validated['servis_id'], collect());
 
-        $jumlahBayar = $request->jumlah_bayar;
+        $jumlahBayar = $validated['jumlah_bayar'] ?? 0;
         if ($jasa->isNotEmpty()) {
             $jumlahBayar = 0;
             foreach ($jasa as $item) {
@@ -111,13 +123,13 @@ class PembayaranController extends Controller
         }
 
         DB::table('pembayaran')->where('id', $id)->update([
-            'no_pembayaran' => $request->no_pembayaran,
-            'servis_id' => $request->servis_id,
-            'tanggal' => $request->tanggal,
-            'metode' => $request->metode,
+            'no_pembayaran' => $validated['no_pembayaran'],
+            'servis_id' => $validated['servis_id'],
+            'tanggal' => $validated['tanggal'],
+            'metode' => $validated['metode'],
             'jumlah_bayar' => $jumlahBayar,
-            'no_referensi' => $request->no_referensi,
-            'catatan' => $request->catatan,
+            'no_referensi' => $validated['no_referensi'],
+            'catatan' => $validated['catatan'],
         ]);
         return redirect('/pembayaran');
     }
@@ -125,7 +137,7 @@ class PembayaranController extends Controller
     //----- hapusPembayaran(): Menghapus data pembayaran berdasarkan id
     public function hapusPembayaran($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pembayaran');
 
         DB::table('pembayaran')->where('id', $id)->delete();
         return redirect('/pembayaran');
@@ -134,7 +146,7 @@ class PembayaranController extends Controller
     //----- pdfPembayaran(): Mengunduh laporan pembayaran dalam format PDF
     public function pdfPembayaran()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:pembayaran');
 
         $export = new PembayaranExport($this->pembayaranData()['rows']);
 
@@ -144,7 +156,7 @@ class PembayaranController extends Controller
     //----- excelPembayaran(): Mengunduh laporan pembayaran dalam format Excel (.xlsx)
     public function excelPembayaran()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:pembayaran');
 
         return Excel::download(
             new PembayaranExport($this->pembayaranData()['rows']),

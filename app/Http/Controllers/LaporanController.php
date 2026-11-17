@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\LaporanServisExport;
 use App\Exports\LaporanPendapatanExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Support\RolePermission;
 
 //----- LaporanController: menangani laporan servis & pendapatan dengan filter tanggal dan export PDF/Excel
 class LaporanController extends Controller
@@ -16,7 +17,13 @@ class LaporanController extends Controller
     //----- laporanServis(): Menampilkan laporan servis dengan filter tanggal; mendukung export PDF/Excel via parameter export
     public function laporanServis(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:laporan_servis');
+
+        $validated = $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+            'export' => 'nullable|in:pdf,excel',
+        ]);
 
         //----- $rows = hasil query laporan servis dengan filter tanggal
         $rows = $this->laporanServisData($request);
@@ -76,7 +83,13 @@ class LaporanController extends Controller
     //----- laporanPendapatan(): Menampilkan laporan pendapatan dengan filter tanggal; mendukung export PDF/Excel
     public function laporanPendapatan(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:laporan_pendapatan');
+
+        $validated = $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+            'export' => 'nullable|in:pdf,excel',
+        ]);
 
         //----- $data berisi rows, jasaByServis, dan totalPendapatan dari method laporanPendapatanData
         $data = $this->laporanPendapatanData($request);

@@ -3,9 +3,11 @@
 @section('content')
 {{-- Halaman pengaturan profil. Data $user dikirim dari ProfilController method profil(), form dikirim ke method updateProfil() --}}
 
-    <h1 class="mb-4">Pengaturan Profil</h1>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0">Pengaturan Profil</h5>
+        </div>
 
-    <div class="card">
         <div class="card-body">
             <?php if ($errors->any()) { ?>
                 <div class="alert alert-danger">
@@ -14,38 +16,41 @@
             <?php } ?>
 
             <?php if ($user != null) { ?>
-                <form method="POST" action="/profil" enctype="multipart/form-data">
+                <form method="POST" action="/profil" enctype="multipart/form-data" class="row g-3">
                     @csrf
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nama Pengguna</label>
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Pengguna</label>
                         <input type="text" name="nama" class="form-control" value="{{ old('nama', $user->nama) }}" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Email</label>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
                         <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">No. HP</label>
+                    <div class="col-md-6">
+                        <label class="form-label">No. HP</label>
                         <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $user->no_hp) }}">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password Baru</label>
+                    <div class="col-md-6">
+                        <label class="form-label">Password Baru</label>
                         <input type="password" name="password" class="form-control" minlength="6" placeholder="Kosongkan jika tidak ingin mengganti password">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Foto Profil</label>
+                    <div class="col-md-6">
+                        <label class="form-label">Foto Profil</label>
                         <input type="file" name="foto" class="form-control" accept="image/*">
                         <?php if ($user->foto != null && $user->foto != '') { ?>
-                            <img src="{{ asset('uploads/' . $user->foto) }}" width="100" class="mt-2 rounded">
+                            <img src="{{ asset('uploads/' . $user->foto) }}" width="90" class="mt-3 rounded-circle">
                         <?php } ?>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Simpan Profil</button>
+                    <div class="col-12 d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan Profil</button>
+                        <a href="/home" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    </div>
                 </form>
             <?php } else { ?>
                 <p class="text-muted mb-0">Data profil tidak ditemukan.</p>

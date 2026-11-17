@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Exports\PenggunaExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage;
 
 //----- PenggunaController: menangani CRUD data pengguna/pengguna sistem beserta export PDF/Excel
 class PenggunaController extends Controller
@@ -16,7 +17,7 @@ class PenggunaController extends Controller
     //----- pengguna(): Menampilkan halaman daftar pengguna/pengguna sistem
     public function pengguna()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:pengguna');
 
         return view('pengguna', ['rows' => $this->penggunaData()]);
     }
@@ -32,7 +33,7 @@ class PenggunaController extends Controller
     //----- tambahPengguna(): Menampilkan form tambah pengguna baru
     public function tambahPengguna()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pengguna');
 
         return view('input_pengguna');
     }
@@ -40,7 +41,18 @@ class PenggunaController extends Controller
     //----- simpanPengguna(): Menyimpan pengguna baru
     public function simpanPengguna(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pengguna');
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role' => session('role') === 'owner'
+                ? 'required|in:' . implode(',', RolePermission::ROLES)
+                : 'required|in:admin,kasir,mekanik',
+            'no_hp' => 'nullable|string|max:20',
+            'foto' => 'nullable|image|max:2048',
+        ]);
 
         $fotoPath = null;
         if ($request->hasFile('foto')) {
@@ -51,11 +63,11 @@ class PenggunaController extends Controller
         }
 
         DB::table('users')->insert([
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'password' => $request->password,
-            'role' => $request->role,
-            'no_hp' => $request->no_hp,
+            'nama' => $validated['nama'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
+            'no_hp' => $validated['no_hp'],
             'foto' => $fotoPath,
             'is_active' => 0,
             'created_at' => now(),
@@ -68,25 +80,38 @@ class PenggunaController extends Controller
     //----- editPengguna(): Menampilkan form edit pengguna berdasarkan id
     public function editPengguna($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pengguna');
 
-        return view('edit_pengguna', [
-            'row' => DB::table('users')->where('id', $id)->first(),
-        ]);
+        $user = DB::table('users')->where('id', $id)->first();
+        abort_if($user === null, 404);
+
+        return view('edit_pengguna', ['row' => $user]);
     }
 
     //----- updatePengguna(): Memperbarui data pengguna dan sinkronkan session jika mengedit diri sendiri
     public function updatePengguna(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pengguna');
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+            'role' => session('role') === 'owner'
+                ? 'required|in:' . implode(',', RolePermission::ROLES)
+                : 'required|in:admin,kasir,mekanik',
+            'no_hp' => 'nullable|string|max:20',
+            'foto' => 'nullable|image|max:2048',
+        ]);
 
         $user = DB::table('users')->where('id', $id)->first();
+        abort_if($user === null, 404);
 
         $data = [
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'role' => $request->role,
-            'no_hp' => $request->no_hp,
+            'nama' => $validated['nama'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+            'no_hp' => $validated['no_hp'],
             'updated_at' => now(),
         ];
 
@@ -101,13 +126,17 @@ class PenggunaController extends Controller
             }
         }
 
+        if ($validated['password'] ?? null) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
         DB::table('users')->where('id', $id)->update($data);
 
         if ((int) session('id_user') === (int) $id) {
             $userUpdate = DB::table('users')->where('id', $id)->first();
             session([
-                'u' => $request->nama,
-                'role' => $request->role,
+                'u' => $validated['nama'],
+                'role' => $validated['role'],
                 'foto' => $userUpdate->foto,
             ]);
         }
@@ -118,7 +147,10 @@ class PenggunaController extends Controller
     //----- hapusPengguna(): Menghapus data pengguna berdasarkan id
     public function hapusPengguna($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:pengguna');
+
+        //----- Jangan sampai user menghapus akunnya sendiri
+        abort_if((int) $id === (int) session('id_user'), 403);
 
         DB::table('users')->where('id', $id)->delete();
         return redirect('/pengguna');
@@ -127,7 +159,7 @@ class PenggunaController extends Controller
     //----- pdfPengguna(): Mengunduh laporan data pengguna dalam format PDF
     public function pdfPengguna()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:pengguna');
 
         $export = new PenggunaExport($this->penggunaData());
 
@@ -137,7 +169,7 @@ class PenggunaController extends Controller
     //----- excelPengguna(): Mengunduh laporan data pengguna dalam format Excel (.xlsx)
     public function excelPengguna()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:pengguna');
 
         return Excel::download(
             new PenggunaExport($this->penggunaData()),

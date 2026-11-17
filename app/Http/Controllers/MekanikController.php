@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\database;
 use App\Exports\MekanikExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- MekanikController: menangani CRUD data mekanik beserta export PDF/Excel
@@ -16,7 +16,7 @@ class MekanikController extends Controller
     //----- karyawan(): Menampilkan halaman daftar mekanik. Mengirim data $karyawan ke view mekanik
     public function karyawan()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:mekanik');
 
         // $karyawan ini yang dipakai di view mekanik sebagai $karyawan
         return view('mekanik', ['karyawan' => $this->mekanikData()]);
@@ -31,7 +31,7 @@ class MekanikController extends Controller
     //----- tkry(): Menampilkan form tambah mekanik baru
     public function tkry()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:mekanik');
 
         return view('input_mekanik');
     }
@@ -39,19 +39,25 @@ class MekanikController extends Controller
     //----- aksi_tkry(): Menyimpan data mekanik baru dan mengaitkannya dengan user yang login
     public function aksi_tkry(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:mekanik');
 
-        $user = (new database)->tarik('users', ['nama' => session('u')]);
+        $user = DB::table('users')->where('id', session('id_user'))->first();
 
         if (!$user) {
             return redirect('/tkry');
         }
 
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'spesialisasi' => 'nullable|string|max:255',
+        ]);
+
         $data = [
             'user_id' => $user->id,
-            'nama' => $request->nama,
-            'no_hp' => $request->no_hp,
-            'spesialisasi' => $request->spesialisasi,
+            'nama' => $validated['nama'],
+            'no_hp' => $validated['no_hp'],
+            'spesialisasi' => $validated['spesialisasi'],
             'status' => 'aktif',
         ];
 
@@ -63,24 +69,32 @@ class MekanikController extends Controller
     //----- editMekanik(): Menampilkan form edit mekanik berdasarkan id. Mengirim data $row ke view edit_mekanik. where() = cari data, first() = ambil satu data
     public function editMekanik($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:mekanik');
+
+        $row = DB::table('mekanik')->where('id', $id)->first();
+        abort_if($row === null, 404);
 
         // $row ini yang dipakai di view edit_mekanik sebagai $row
-        return view('edit_mekanik', [
-            'row' => DB::table('mekanik')->where('id', $id)->first(),
-        ]);
+        return view('edit_mekanik', ['row' => $row]);
     }
 
     //----- updateMekanik(): Memperbarui data mekanik yang dipilih. update() = ubah data di database, redirect() = pindah halaman
     public function updateMekanik(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:mekanik');
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'spesialisasi' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
 
         DB::table('mekanik')->where('id', $id)->update([
-            'nama' => $request->nama,
-            'no_hp' => $request->no_hp,
-            'spesialisasi' => $request->spesialisasi,
-            'status' => $request->status,
+            'nama' => $validated['nama'],
+            'no_hp' => $validated['no_hp'],
+            'spesialisasi' => $validated['spesialisasi'],
+            'status' => $validated['status'],
             'updated_at' => now(),
         ]);
         return redirect('/mekanik');
@@ -89,7 +103,7 @@ class MekanikController extends Controller
     //----- hapusMekanik(): Menghapus data mekanik berdasarkan id. delete() = hapus data dari database
     public function hapusMekanik($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:mekanik');
 
         DB::table('mekanik')->where('id', $id)->delete();
         return redirect('/mekanik');
@@ -98,7 +112,7 @@ class MekanikController extends Controller
     //----- pdfMekanik(): Mengunduh laporan data mekanik dalam format PDF
     public function pdfMekanik()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:mekanik');
 
         $export = new MekanikExport($this->mekanikData());
 
@@ -108,7 +122,7 @@ class MekanikController extends Controller
     //----- excelMekanik(): Mengunduh laporan data mekanik dalam format Excel (.xlsx)
     public function excelMekanik()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:mekanik');
 
         return Excel::download(
             new MekanikExport($this->mekanikData()),

@@ -3,60 +3,64 @@
 @section('content')
 {{-- Halaman form tambah supplier baru. Data dikirim ke SupplierController method simpanSupplier() --}}
 
-    <h1 class="mb-4 fw-bold">Tambah Supplier</h1>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0">Tambah Supplier</h5>
+        </div>
 
-    <div class="card">
         <div class="card-body">
-            <form action="/tambah_supplier_aksi" method="POST">
+            <form action="/tambah_supplier_aksi" method="POST" class="row g-3">
                 @csrf
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Nama Supplier</label>
-                    <input type="text" name="nama_supplier" class="form-control" required>
+                <div class="col-md-6">
+                    <label class="form-label">Nama Supplier</label>
+                    <input type="text" name="nama_supplier" class="form-control" value="{{ old('nama_supplier') }}" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Nama Barang</label>
-                    <input type="text" name="nama_barang" class="form-control" required>
+                <div class="col-md-6">
+                    <label class="form-label">Kontak Person</label>
+                    <input type="text" name="kontak_person" class="form-control" value="{{ old('kontak_person') }}">
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Stok</label>
-                    <input type="number" name="stok" class="form-control" value="0" min="0" required>
+                <div class="col-md-6">
+                    <label class="form-label">No HP</label>
+                    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Harga</label>
-                    <input type="number" name="harga" class="form-control" value="0" min="0" required>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ old('email') }}">
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Tanggal Masuk</label>
-                    <input type="date" name="tanggal_masuk" class="form-control" value="{{ date('Y-m-d') }}" required>
+                <div class="col-md-12">
+                    <label class="form-label">Alamat</label>
+                    <textarea name="alamat" class="form-control" rows="2">{{ old('alamat') }}</textarea>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Kontak Person</label>
-                    <input type="text" name="kontak_person" class="form-control">
+                <div class="col-md-6">
+                    <label class="form-label">Nama Barang</label>
+                    <input type="text" name="nama_barang" class="form-control" value="{{ old('nama_barang') }}" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">No HP</label>
-                    <input type="text" name="no_hp" class="form-control">
+                <div class="col-md-3">
+                    <label class="form-label">Stok</label>
+                    <input type="number" name="stok" class="form-control" value="{{ old('stok', 0) }}" min="0" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Email</label>
-                    <input type="email" name="email" class="form-control">
+                <div class="col-md-3">
+                    <label class="form-label">Harga</label>
+                    <input type="number" name="harga" class="form-control" value="{{ old('harga', 0) }}" min="0" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Alamat</label>
-                    <textarea name="alamat" class="form-control"></textarea>
+                <div class="col-md-6">
+                    <label class="form-label">Tanggal Masuk</label>
+                    <input type="date" name="tanggal_masuk" class="form-control" value="{{ old('tanggal_masuk', date('Y-m-d')) }}" required>
                 </div>
 
-                <button class="btn btn-primary" type="submit">Simpan</button>
-                <a href="/supplier" class="btn btn-secondary">Kembali</a>
+                <div class="col-12 d-flex gap-2 mt-2">
+                    <button class="btn btn-warning text-dark fw-semibold rounded-pill" type="submit"><i class="bi bi-check-lg-circle"></i> Simpan</button>
+                    <a href="/supplier" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Kembali</a>
+                </div>
             </form>
         </div>
     </div>

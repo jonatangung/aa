@@ -3,16 +3,18 @@
 @section('content')
 {{-- Halaman kelola stok barang (masuk & keluar). Data $supplierData dan $selectedBarang dikirim dari StokBarangController method inputStokBarang() --}}
 
-    <h1 class="mb-4 fw-bold">Kelola Stok Barang</h1>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0">Kelola Stok Barang</h5>
+        </div>
 
-    <div class="card">
         <div class="card-body">
             {{-- Form pilih barang: GET ke halaman yang sama dengan supplier_id --}}
-            <form action="/input_stok_barang" method="GET" class="row g-3 mb-4">
+            <form action="/input_stok_barang" method="GET" class="row g-3 align-items-end mb-4">
                 <div class="col-md-8">
-                    <label class="fw-semibold">Pilih Barang</label>
-                    <select name="supplier_id" class="form-control" required>
-                        <option value="">-- Pilih Barang --</option>
+                    <label class="form-label">Pilih Barang</label>
+                    <select name="supplier_id" class="form-select" required>
+                        <option value="" disabled @selected(request('supplier_id') == null)>-- Pilih Barang --</option>
                         {{-- $supplierData = daftar barang dari supplier, $item = satu baris data di setiap putaran --}}
                         @foreach ($supplierData as $item)
                             <?php
@@ -29,8 +31,8 @@
                     </select>
                 </div>
 
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-secondary w-100">Pilih</button>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill w-100"><i class="bi bi-search"></i> Pilih</button>
                 </div>
             </form>
 
@@ -38,55 +40,61 @@
                 {{-- $selectedBarang = data barang yang dipilih, ditampilkan dua form di bawah --}}
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="border rounded p-3 h-100">
-                            <h5 class="mb-3">Stok Masuk</h5>
-                            <form action="/stok-barang_tambah" method="POST">
+                        <div class="card shadow-sm border-0 border-top border-warning border-3 h-100"><div class="card-body">
+                            <h6 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-box-arrow-in-down text-success"></i> Stok Masuk</h6>
+                            <form action="/stok-barang_tambah" method="POST" class="row g-3">
                                 @csrf
                                 <input type="hidden" name="supplier_id" value="{{ $selectedBarang->id }}">
 
-                                <div class="mb-3">
-                                    <label class="fw-semibold">Jumlah Masuk</label>
+                                <div class="col-12">
+                                    <label class="form-label">Jumlah Masuk</label>
                                     <input type="number" name="jumlah" min="1" class="form-control" required>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="fw-semibold">Tanggal Masuk</label>
+                                <div class="col-12">
+                                    <label class="form-label">Tanggal Masuk</label>
                                     <input type="date" name="tanggal" value="{{ date('Y-m-d') }}" class="form-control" required>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Simpan Masuk</button>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-success rounded-pill w-100"><i class="bi bi-check-lg-circle"></i> Simpan Masuk</button>
+                                </div>
                             </form>
+                        </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="border rounded p-3 h-100">
-                            <h5 class="mb-3">Stok Keluar</h5>
-                            <form action="/stok-barang_keluar/{{ $selectedBarang->id }}" method="POST">
+                        <div class="card shadow-sm border-0 border-top border-warning border-3 h-100"><div class="card-body">
+                            <h6 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-box-arrow-up text-danger"></i> Stok Keluar</h6>
+                            <form action="/stok-barang_keluar/{{ $selectedBarang->id }}" method="POST" class="row g-3">
                                 @csrf
 
-                                <div class="mb-3">
-                                    <label class="fw-semibold">Jumlah Keluar</label>
+                                <div class="col-12">
+                                    <label class="form-label">Jumlah Keluar</label>
                                     <input type="number" name="jumlah" min="1" class="form-control" required>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="fw-semibold">Tanggal Keluar</label>
+                                <div class="col-12">
+                                    <label class="form-label">Tanggal Keluar</label>
                                     <input type="date" name="tanggal" value="{{ date('Y-m-d') }}" class="form-control" required>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="fw-semibold">Harga Jual</label>
+                                <div class="col-12">
+                                    <label class="form-label">Harga Jual</label>
                                     <input type="number" name="harga_jual" min="0" class="form-control" required>
                                 </div>
 
-                                <button type="submit" class="btn btn-danger">Simpan Keluar</button>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-danger rounded-pill w-100"><i class="bi bi-check-lg-circle"></i> Simpan Keluar</button>
+                                </div>
                             </form>
+                        </div>
                         </div>
                     </div>
                 </div>
 
-                <a href="/stok-barang" class="btn btn-secondary mt-3">Kembali</a>
+                <a href="/stok-barang" class="btn btn-outline-secondary rounded-pill mt-3"><i class="bi bi-arrow-left"></i> Kembali</a>
             <?php } ?>
         </div>
     </div>

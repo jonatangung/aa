@@ -3,30 +3,34 @@
 @section('content')
 {{-- Halaman form tambah mekanik baru. Data dikirim ke MekanikController method aksi_tkry() --}}
 
-    <h1 class="mb-4 fw-bold">Input Mekanik</h1>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0">Tambah Mekanik</h5>
+        </div>
 
-    <div class="card">
         <div class="card-body">
-            <form action="/aksi_tkry" method="POST" class="no-print">
+            <form action="/aksi_tkry" method="POST" class="row g-3 no-print">
                 @csrf
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Nama Mekanik:</label>
-                    <input type="text" name="nama" class="form-control" required>
+                <div class="col-md-6">
+                    <label class="form-label">Nama Mekanik</label>
+                    <input type="text" name="nama" class="form-control" value="{{ old('nama') }}" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">No HP:</label>
-                    <input type="text" name="no_hp" class="form-control">
+                <div class="col-md-6">
+                    <label class="form-label">No HP</label>
+                    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold">Spesialisasi:</label>
-                    <input type="text" name="spesialisasi" class="form-control">
+                <div class="col-md-6">
+                    <label class="form-label">Spesialisasi</label>
+                    <input type="text" name="spesialisasi" class="form-control" value="{{ old('spesialisasi') }}">
                 </div>
 
-                <button type="submit" class="btn btn-primary px-4">Simpan</button>
-                <a href="/mekanik" class="btn btn-secondary px-4">Kembali</a>
+                <div class="col-12 d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan</button>
+                    <a href="/mekanik" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Kembali</a>
+                </div>
             </form>
         </div>
     </div>

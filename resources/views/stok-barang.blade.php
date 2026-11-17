@@ -3,25 +3,25 @@
 @section('content')
 {{-- Halaman rekap stok barang. Data $rows dikirim dari StokBarangController method stokBarang() --}}
 
-    <h1 class="mb-3">Stok Barang</h1>
+    <?php $canWrite = \App\Support\RolePermission::boleh('write:stok_barang'); ?>
 
-    {{-- Tombol kelola stok, print, dan export --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
-        <a href="/input_stok_barang" class="btn btn-primary">Kelola Stok</a>
-        <div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">Print Window</button>
-            <a href="/stok-barang/pdf" target="_blank" class="btn btn-danger btn-sm">Download PDF</a>
-            <a href="/stok-barang/excel" class="btn btn-success btn-sm">Export Excel</a>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="card-title mb-0">Stok Barang</h5>
+            <div class="d-flex gap-2 flex-wrap no-print">
+                <?php if ($canWrite) { ?>
+                <a href="/input_stok_barang" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-boxes"></i> Kelola Stok</a>
+                <?php } ?>
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <a href="/stok-barang/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                <a href="/stok-barang/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
         </div>
-    </div>
 
-    {{-- Tabel rekap stok per barang --}}
-    <div class="card">
-        <div class="card-body table-responsive">
-            <h5 class="card-title">Stok Barang</h5>
-
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark text-center">
+        <div class="card-body">
+            {{-- Tabel rekap stok per barang --}}
+            <table class="table table-hover table-striped align-middle datatable">
+                <thead class="table-warning">
                     <tr>
                         <th>No</th>
                         <th>Supplier</th>

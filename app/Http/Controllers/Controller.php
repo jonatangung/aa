@@ -80,7 +80,7 @@ class Controller extends BaseController
         $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
-        $pdf->SetCreator('Sistem Informasi Bengkel Motor');
+        $pdf->SetCreator('Bengkel Pintar');
         $pdf->SetTitle($filename);
         $pdf->SetMargins(15, 15, 15);
         $pdf->SetAutoPageBreak(true, 15);

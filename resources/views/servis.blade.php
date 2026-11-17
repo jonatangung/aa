@@ -3,24 +3,36 @@
 @section('content')
 {{-- Halaman daftar transaksi servis. Data $rows dikirim dari ServisController method servis() --}}
 
-    <h1 class="mb-3">Transaksi Servis</h1>
+    <?php
+    //----- Warna badge untuk status servis
+    $statusBadge = [
+        'antri' => 'bg-warning',
+        'dikerjakan' => 'bg-info',
+        'selesai' => 'bg-success',
+        'diambil' => 'bg-primary',
+        'batal' => 'bg-danger',
+    ];
+    ?>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
-        <a href="/tambah_servis" class="btn btn-secondary">Tambah Servis</a>
-        <div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">Print Window</button>
-            <a href="/servis/pdf" target="_blank" class="btn btn-danger btn-sm">Download PDF</a>
-            <a href="/servis/excel" class="btn btn-success btn-sm">Export Excel</a>
+    <?php $canWrite = \App\Support\RolePermission::boleh('write:servis'); ?>
+
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="card-title mb-0">Transaksi Servis</h5>
+            <div class="d-flex gap-2 flex-wrap no-print">
+                <?php if ($canWrite) { ?>
+                <a href="/tambah_servis" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-plus-lg-circle"></i> Tambah Servis</a>
+                <?php } ?>
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <a href="/servis/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                <a href="/servis/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
         </div>
-    </div>
 
-    {{-- Tabel daftar transaksi servis --}}
-    <div class="card mt-3">
-        <div class="card-body table-responsive">
-            <h5 class="card-title">Transaksi Servis</h5>
-
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark text-center">
+        <div class="card-body">
+            {{-- Tabel daftar transaksi servis --}}
+            <table class="table table-hover table-striped align-middle datatable">
+                <thead class="table-warning">
                     <tr>
                         <th>No</th>
                         <th>Pelanggan</th>
@@ -56,13 +68,17 @@
                                 <td>{{ $value->metode_pembayaran }}</td>
                             <?php } ?>
                             <td>{{ $value->tanggal_masuk }}</td>
-                            <td>{{ $value->status }}</td>
+                            <td><span class="badge rounded-pill {{ $statusBadge[$value->status] ?? 'bg-secondary' }}">{{ ucfirst($value->status) }}</span></td>
                             <td>
-                                <a href="/edit_servis/{{ $value->id }}" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="/hapus_servis/{{ $value->id }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                                </form>
+                                <div class="d-flex gap-1">
+                                    <?php if ($canWrite) { ?>
+                                    <a href="/edit_servis/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                    <form action="/hapus_servis/{{ $value->id }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger btn-sm rounded-pill" title="Hapus"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                    <?php } ?>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

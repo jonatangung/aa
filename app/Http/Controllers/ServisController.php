@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\ServisExport;
+use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
 
 //----- ServisController: menangani CRUD transaksi servis beserta export PDF/Excel
@@ -15,7 +16,7 @@ class ServisController extends Controller
     //----- servis(): Menampilkan halaman daftar servis, data $rows dikirim ke view servis
     public function servis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:servis');
 
         //----- $rows ini yang dipakai di view servis sebagai $rows
         return view('servis', ['rows' => $this->servisData()]);
@@ -104,7 +105,7 @@ class ServisController extends Controller
     //----- tambahServis(): Menampilkan form tambah servis baru (beserta data pelanggan, kendaraan, mekanik, jasa)
     public function tambahServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:servis');
 
         //----- Kirim semua data pilihan ke view input_servis
         return view('input_servis', [
@@ -118,10 +119,23 @@ class ServisController extends Controller
     //----- simpanServis(): Menyimpan servis baru, detail jasa yang dipilih, dan data pembayarannya
     public function simpanServis(Request $request)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:servis');
 
-        //----- Cari data user yang sedang login berdasarkan nama session
-        $user = DB::table('users')->where('nama', session('u'))->first();
+        $validated = $request->validate([
+            'pelanggan_id' => 'required|integer|exists:pelanggan,id',
+            'kendaraan_id' => 'required|integer|exists:kendaraan,id',
+            'mekanik_id' => 'nullable|integer|exists:mekanik,id',
+            'keluhan' => 'required|string|max:1000',
+            'status' => 'required|in:antri,dikerjakan,selesai,diambil,batal',
+            'metode_pembayaran' => 'required|in:tunai,transfer,qris,debit,kredit',
+            'jasa_servis_id' => 'nullable|array',
+            'jasa_servis_id.*' => 'integer|exists:jasa_servis,id',
+            'jumlah_jasa' => 'nullable|array',
+            'jumlah_jasa.*' => 'integer|min:1',
+        ]);
+
+        //----- Cari data user yang sedang login berdasarkan id session
+        $user = DB::table('users')->where('id', session('id_user'))->first();
 
         if (!$user) {
             return redirect('/login');
@@ -148,31 +162,26 @@ class ServisController extends Controller
         } while (DB::table('servis')->where('no_servis', $noServis)->exists());
 
         //----- Mekanik itu opsional, kosong berarti null
-        $mekanikId = $request->mekanik_id;
-        if ($mekanikId == '') {
+        $mekanikId = $validated['mekanik_id'] ?? null;
+        if ($mekanikId === '') {
             $mekanikId = null;
         }
 
         //----- Simpan data servis baru, kembalikan id-nya untuk dipakai di tabel lain
         $servisId = DB::table('servis')->insertGetId([
             'no_servis' => $noServis,
-            'pelanggan_id' => $request->pelanggan_id,
-            'kendaraan_id' => $request->kendaraan_id,
+            'pelanggan_id' => $validated['pelanggan_id'],
+            'kendaraan_id' => $validated['kendaraan_id'],
             'mekanik_id' => $mekanikId,
             'user_id' => $user->id,
-            'keluhan' => $request->keluhan,
-            'status' => $request->status,
+            'keluhan' => $validated['keluhan'],
+            'status' => $validated['status'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         $jumlahBayar = 0;
-        $jasaDipilih = $request->jasa_servis_id;
-
-        //----- Kalau tidak ada jasa yang dicentang, anggap array kosong
-        if ($jasaDipilih == null) {
-            $jasaDipilih = [];
-        }
+        $jasaDipilih = $validated['jasa_servis_id'] ?? [];
 
         //----- Simpan tiap jasa yang dicentang ke tabel servis_jasa
         foreach ($jasaDipilih as $jasaId) {
@@ -180,7 +189,7 @@ class ServisController extends Controller
 
             if ($jasa) {
                 //----- Ambil jumlah jasa dari form, minimal 1
-                $jumlah = (int) $request->jumlah_jasa[$jasaId];
+                $jumlah = (int) ($validated['jumlah_jasa'][$jasaId] ?? 1);
                 if ($jumlah < 1) {
                     $jumlah = 1;
                 }
@@ -202,7 +211,7 @@ class ServisController extends Controller
             'servis_id' => $servisId,
             'user_id' => $user->id,
             'tanggal' => now(),
-            'metode' => $request->metode_pembayaran,
+            'metode' => $validated['metode_pembayaran'],
             'jumlah_bayar' => $jumlahBayar,
             'created_at' => now(),
         ]);
@@ -213,10 +222,13 @@ class ServisController extends Controller
     //----- editServis(): Menampilkan form edit servis beserta detail jasa dan pembayaran
     public function editServis($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:servis');
+
+        $row = DB::table('servis')->where('id', $id)->first();
+        abort_if($row === null, 404);
 
         return view('edit_servis', [
-            'row' => DB::table('servis')->where('id', $id)->first(),
+            'row' => $row,
             'pelanggan' => DB::table('pelanggan')->orderBy('nama')->get(),
             'kendaraan' => DB::table('kendaraan')->orderBy('no_polisi')->get(),
             'mekanik' => DB::table('mekanik')->orderBy('nama')->get(),
@@ -229,17 +241,32 @@ class ServisController extends Controller
     //----- updateServis(): Memperbarui data servis, menghapus & menyisip ulang detail jasa, lalu update/insert pembayaran
     public function updateServis(Request $request, $id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:servis');
+
+        $validated = $request->validate([
+            'no_servis' => 'required|string|max:30',
+            'pelanggan_id' => 'required|integer|exists:pelanggan,id',
+            'kendaraan_id' => 'required|integer|exists:kendaraan,id',
+            'mekanik_id' => 'nullable|integer|exists:mekanik,id',
+            'keluhan' => 'required|string|max:1000',
+            'status' => 'required|in:antri,dikerjakan,selesai,diambil,batal',
+            'catatan' => 'nullable|string|max:1000',
+            'metode_pembayaran' => 'required|in:tunai,transfer,qris,debit,kredit',
+            'jasa_servis_id' => 'nullable|array',
+            'jasa_servis_id.*' => 'integer|exists:jasa_servis,id',
+            'jumlah_jasa' => 'nullable|array',
+            'jumlah_jasa.*' => 'integer|min:1',
+        ]);
 
         //----- Update data utama servis
         DB::table('servis')->where('id', $id)->update([
-            'no_servis' => $request->no_servis,
-            'pelanggan_id' => $request->pelanggan_id,
-            'kendaraan_id' => $request->kendaraan_id,
-            'mekanik_id' => $request->mekanik_id,
-            'keluhan' => $request->keluhan,
-            'status' => $request->status,
-            'catatan' => $request->catatan,
+            'no_servis' => $validated['no_servis'],
+            'pelanggan_id' => $validated['pelanggan_id'],
+            'kendaraan_id' => $validated['kendaraan_id'],
+            'mekanik_id' => $validated['mekanik_id'] ?? null,
+            'keluhan' => $validated['keluhan'],
+            'status' => $validated['status'],
+            'catatan' => $validated['catatan'],
             'updated_at' => now(),
         ]);
 
@@ -247,18 +274,15 @@ class ServisController extends Controller
         DB::table('servis_jasa')->where('servis_id', $id)->delete();
 
         $jumlahBayar = 0;
-        $jasaDipilih = $request->jasa_servis_id;
-
-        if ($jasaDipilih == null) {
-            $jasaDipilih = [];
-        }
+        $jasaDipilih = $validated['jasa_servis_id'] ?? [];
+        $jumlahJasa = $validated['jumlah_jasa'] ?? [];
 
         //----- Simpan ulang detail jasa yang dipilih
         foreach ($jasaDipilih as $jasaId) {
             $jasa = DB::table('jasa_servis')->where('id', $jasaId)->first();
 
             if ($jasa) {
-                $jumlah = (int) $request->jumlah_jasa[$jasaId];
+                $jumlah = (int) ($jumlahJasa[$jasaId] ?? 1);
                 if ($jumlah < 1) {
                     $jumlah = 1;
                 }
@@ -277,12 +301,12 @@ class ServisController extends Controller
         if (DB::table('pembayaran')->where('servis_id', $id)->exists()) {
             //----- Sudah ada, cukup update
             DB::table('pembayaran')->where('servis_id', $id)->update([
-                'metode' => $request->metode_pembayaran,
+                'metode' => $validated['metode_pembayaran'],
                 'jumlah_bayar' => $jumlahBayar,
             ]);
         } else {
             //----- Belum ada, cari user login lalu buat pembayaran baru
-            $user = DB::table('users')->where('nama', session('u'))->first();
+            $user = DB::table('users')->where('id', session('id_user'))->first();
 
             if ($user) {
                 DB::table('pembayaran')->insert([
@@ -290,7 +314,7 @@ class ServisController extends Controller
                     'servis_id' => $id,
                     'user_id' => $user->id,
                     'tanggal' => now(),
-                    'metode' => $request->metode_pembayaran,
+                    'metode' => $validated['metode_pembayaran'],
                     'jumlah_bayar' => $jumlahBayar,
                     'created_at' => now(),
                 ]);
@@ -303,7 +327,7 @@ class ServisController extends Controller
     //----- hapusServis(): Menghapus servis beserta relasi pembayaran dan servis_jasa-nya
     public function hapusServis($id)
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('write:servis');
 
         DB::table('pembayaran')->where('servis_id', $id)->delete();
         DB::table('servis_jasa')->where('servis_id', $id)->delete();
@@ -314,7 +338,7 @@ class ServisController extends Controller
     //----- pdfServis(): Mengunduh laporan transaksi servis dalam format PDF
     public function pdfServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:servis');
 
         $export = new ServisExport($this->servisData());
 
@@ -325,7 +349,7 @@ class ServisController extends Controller
     //----- excelServis(): Mengunduh laporan transaksi servis dalam format Excel (.xlsx)
     public function excelServis()
     {
-        if (!session('u')) return redirect('/');
+        RolePermission::cek('view:servis');
 
         return Excel::download(
             new ServisExport($this->servisData()),

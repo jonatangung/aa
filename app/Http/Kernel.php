@@ -67,7 +67,9 @@ class Kernel extends HttpKernel //--- Class Kernel kita mewarisi (extends) HttpK
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class, //--- Memastikan session tetap valid saat user login
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class, //--- Mengatur header cache pada response
         'can' => \Illuminate\Auth\Middleware\Authorize::class, //--- Otorisasi: cek apakah user boleh melakukan aksi tertentu
-        'role' => \App\Http\Middleware\CekRole::class, //--- Middleware custom untuk cek role user
+        'auth' => \App\Http\Middleware\CekLogin::class, //--- Cek user sudah login (session('u')), untuk project ini login pakai session manual
+        'guest' => \App\Http\Middleware\CekGuest::class, //--- Cek user BELUM login, untuk halaman login/register
+        'level' => \App\Http\Middleware\CekLevel::class, //--- Cek level/role user sesuai parameter, misal: 'level:owner,admin'
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class, //--- Meminta konfirmasi password sebelum melanjutkan aksi
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class, //--- Mendukung fitur precognition (preview validasi sebelum submit)
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class, //--- Membatasi frekuensi request (rate limit) per user/IP

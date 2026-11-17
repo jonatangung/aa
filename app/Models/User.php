@@ -32,7 +32,7 @@ class User extends Authenticatable
     protected $fillable = [
         'nama', //----- nama lengkap user (kolom DB bernama 'nama', bukan 'name')
         'email', //----- email login
-        'password', //----- password (otomatis di-hash karena cast 'hashed' di bawah)
+        'password', //----- password (disimpan sebagai hash bcrypt)
         'role', //----- role user: admin / mekanik / dll
         'no_hp', //----- nomor HP
         'is_active', //----- status aktif (1=aktif, 0=nonaktif)
@@ -57,7 +57,7 @@ class User extends Authenticatable
      */
     //----- $casts = aturan konversi tipe data otomatis:
     //----- 'email_verified_at' => 'datetime': ubah string tanggal jadi object Carbon (mudah format/manipulasi)
-    //----- 'password' => 'hashed': password yang diisi akan OTOMATIS di-hash (bcrypt) sebelum disimpan
+    //----- password otomatis di-hash bcrypt saat diisi lewat model (DB::table insert manual tetap pakai Hash::make)
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',

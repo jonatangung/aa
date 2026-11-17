@@ -5,7 +5,7 @@
 
     <style>
         @media print {
-            #header, #sidebar, .footer, .no-print, .page-title {
+            #header, #sidebar, .footer, .no-print {
                 display: none !important;
             }
             #main.main {
@@ -16,36 +16,42 @@
                 border: none !important;
                 box-shadow: none !important;
             }
-            .table-responsive {
-                overflow: visible !important;
+            .dataTable_wrapper > :not(table) {
+                display: none !important;
             }
         }
     </style>
 
-    <h1 class="mb-3 page-title">Laporan Servis</h1>
+    <div class="card shadow-sm border-0 border-top border-warning border-3">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h5 class="card-title mb-0">Laporan Servis</h5>
+            <div class="d-flex gap-2 flex-wrap no-print">
+                <a href="/laporan-servis?from={{ request('from') }}&to={{ request('to') }}&export=pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                <a href="/laporan-servis?from={{ request('from') }}&to={{ request('to') }}&export=excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+            </div>
+        </div>
 
-    {{-- Form filter tanggal dan tombol export --}}
-    <form class="no-print d-flex flex-wrap align-items-center gap-3 mb-4" action="{{ url('/laporan-servis') }}" method="GET">
-        <label for="from" class="fw-semibold text-nowrap">Dari Tanggal:</label>
-        <input type="date" id="from" name="from" value="{{ request('from') }}" class="form-control w-auto">
+        <div class="card-body">
+            {{-- Form filter tanggal --}}
+            <form class="no-print row g-3 align-items-end mb-3" action="{{ url('/laporan-servis') }}" method="GET">
+                <div class="col-md-3 col-sm-6">
+                    <label for="from" class="form-label">Dari Tanggal</label>
+                    <input type="date" id="from" name="from" value="{{ request('from') }}" class="form-control">
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label for="to" class="form-label">Sampai Tanggal</label>
+                    <input type="date" id="to" name="to" value="{{ request('to') }}" class="form-control">
+                </div>
+                <div class="col-md-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill"><i class="bi bi-funnel"></i> Filter</button>
+                    <a href="/laporan-servis" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+                </div>
+            </form>
 
-        <label for="to" class="fw-semibold text-nowrap">Sampai Tanggal:</label>
-        <input type="date" id="to" name="to" value="{{ request('to') }}" class="form-control w-auto">
-
-        <button type="submit" class="btn btn-secondary">Filter</button>
-        <a href="/laporan-servis" class="btn btn-secondary">Reset</a>
-        <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
-        <a href="/laporan-servis?from={{ request('from') }}&to={{ request('to') }}&export=pdf" class="btn btn-danger">PDF</a>
-        <a href="/laporan-servis?from={{ request('from') }}&to={{ request('to') }}&export=excel" class="btn btn-success">Excel</a>
-    </form>
-
-    {{-- Tabel laporan servis --}}
-    <div class="card mt-3">
-        <div class="card-body table-responsive">
-            <h5 class="card-title">Laporan Servis</h5>
-
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark text-center">
+            {{-- Tabel laporan servis --}}
+            <table class="table table-hover table-striped align-middle datatable">
+                <thead class="table-warning">
                     <tr>
                         <th>No</th>
                         <th>No Servis</th>
@@ -59,6 +65,16 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
+                    <?php
+                    //----- Warna badge untuk status servis
+                    $statusBadge = [
+                        'antri' => 'bg-warning',
+                        'dikerjakan' => 'bg-info',
+                        'selesai' => 'bg-success',
+                        'diambil' => 'bg-primary',
+                        'batal' => 'bg-danger',
+                    ];
+                    ?>
                     {{-- $rows = kumpulan data laporan dari controller, $value = satu baris data di setiap putaran --}}
                     @foreach ($rows as $value)
                         <tr>
@@ -78,7 +94,7 @@
                             <?php } else { ?>
                                 <td>{{ $value->keluhan }}</td>
                             <?php } ?>
-                            <td>{{ $value->status }}</td>
+                            <td><span class="badge rounded-pill {{ $statusBadge[$value->status] ?? 'bg-secondary' }}">{{ ucfirst($value->status) }}</span></td>
                         </tr>
                     @endforeach
                 </tbody>

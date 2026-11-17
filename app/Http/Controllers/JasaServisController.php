@@ -130,7 +130,7 @@ class JasaServisController extends Controller
     //----- pdfJasaServis(): Mengunduh laporan data jasa servis dalam format PDF
     public function pdfJasaServis()
     {
-        RolePermission::cek('view:jasa_servis');
+        RolePermission::cek('export:jasa_servis');
 
         $export = new JasaServisExport($this->jasaServisData());
 
@@ -140,7 +140,7 @@ class JasaServisController extends Controller
     //----- excelJasaServis(): Mengunduh laporan data jasa servis dalam format Excel (.xlsx)
     public function excelJasaServis()
     {
-        RolePermission::cek('view:jasa_servis');
+        RolePermission::cek('export:jasa_servis');
 
         return Excel::download(
             new JasaServisExport($this->jasaServisData()),

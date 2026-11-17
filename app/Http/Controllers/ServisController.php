@@ -338,7 +338,7 @@ class ServisController extends Controller
     //----- pdfServis(): Mengunduh laporan transaksi servis dalam format PDF
     public function pdfServis()
     {
-        RolePermission::cek('view:servis');
+        RolePermission::cek('export:servis');
 
         $export = new ServisExport($this->servisData());
 
@@ -349,7 +349,7 @@ class ServisController extends Controller
     //----- excelServis(): Mengunduh laporan transaksi servis dalam format Excel (.xlsx)
     public function excelServis()
     {
-        RolePermission::cek('view:servis');
+        RolePermission::cek('export:servis');
 
         return Excel::download(
             new ServisExport($this->servisData()),

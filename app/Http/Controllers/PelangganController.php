@@ -112,7 +112,7 @@ class PelangganController extends Controller
     //----- pdfPelanggan(): Mengunduh laporan data pelanggan dalam format PDF
     public function pdfPelanggan(Request $request)
     {
-        RolePermission::cek('view:pelanggan');
+        RolePermission::cek('export:pelanggan');
 
         $export = new PelangganExport($this->pelangganData($request));
 
@@ -122,7 +122,7 @@ class PelangganController extends Controller
     //----- excelPelanggan(): Mengunduh laporan data pelanggan dalam format Excel (.xlsx)
     public function excelPelanggan(Request $request)
     {
-        RolePermission::cek('view:pelanggan');
+        RolePermission::cek('export:pelanggan');
 
         return Excel::download(
             new PelangganExport($this->pelangganData($request)),

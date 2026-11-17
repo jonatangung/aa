@@ -12,17 +12,17 @@
             <form action="/aksi_tplg" method="POST" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Nama Pelanggan</label>
                     <input type="text" name="nama" class="form-control" value="{{ old('nama') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">No HP</label>
                     <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
                 </div>

@@ -28,11 +28,9 @@ class LaporanController extends Controller
         //----- $rows = hasil query laporan servis dengan filter tanggal
         $rows = $this->laporanServisData($request);
 
-        //----- Export hanya boleh untuk owner & admin
+        //----- Export butuh izin export:laporan_servis (hanya admin & kasir); selain itu 403
         if ($request->export != null && $request->export != '') {
-            if (!in_array(session('role'), ['owner', 'admin'])) {
-                return redirect('/laporan-servis');
-            }
+            RolePermission::cek('export:laporan_servis');
 
             if ($request->export == 'pdf') {
                 return $this->downloadPdf('pdf.laporan-servis', 'Laporan_Servis', [
@@ -94,11 +92,9 @@ class LaporanController extends Controller
         //----- $data berisi rows, jasaByServis, dan totalPendapatan dari method laporanPendapatanData
         $data = $this->laporanPendapatanData($request);
 
-        //----- Export hanya boleh untuk owner & admin
+        //----- Export butuh izin export:laporan_pendapatan (hanya admin & kasir); selain itu 403
         if ($request->export != null && $request->export != '') {
-            if (!in_array(session('role'), ['owner', 'admin'])) {
-                return redirect('/laporan-pendapatan');
-            }
+            RolePermission::cek('export:laporan_pendapatan');
 
             if ($request->export == 'pdf') {
                 return $this->downloadPdf('pdf.laporan-pendapatan', 'Laporan_Pendapatan', [

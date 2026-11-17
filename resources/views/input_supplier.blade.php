@@ -12,22 +12,22 @@
             <form action="/tambah_supplier_aksi" method="POST" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Nama Supplier</label>
                     <input type="text" name="nama_supplier" class="form-control" value="{{ old('nama_supplier') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Kontak Person</label>
                     <input type="text" name="kontak_person" class="form-control" value="{{ old('kontak_person') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">No HP</label>
                     <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-control" value="{{ old('email') }}">
                 </div>
@@ -37,22 +37,22 @@
                     <textarea name="alamat" class="form-control" rows="2">{{ old('alamat') }}</textarea>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Nama Barang</label>
                     <input type="text" name="nama_barang" class="form-control" value="{{ old('nama_barang') }}" required>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12">
                     <label class="form-label">Stok</label>
                     <input type="number" name="stok" class="form-control" value="{{ old('stok', 0) }}" min="0" required>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12">
                     <label class="form-label">Harga</label>
                     <input type="number" name="harga" class="form-control" value="{{ old('harga', 0) }}" min="0" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Tanggal Masuk</label>
                     <input type="date" name="tanggal_masuk" class="form-control" value="{{ old('tanggal_masuk', date('Y-m-d')) }}" required>
                 </div>

@@ -17,51 +17,56 @@
 
         <div class="card-body">
             {{-- Tabel daftar pengguna --}}
-            <table class="table table-hover table-striped align-middle datatable">
-                <thead class="table-warning">
-                    <tr>
-                        <th>No</th>
-                        <th>Foto</th>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>No HP</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $no = 1; ?>
-                    {{-- $rows = kumpulan data pengguna dari controller, $value = satu baris data di setiap putaran --}}
-                    @foreach ($rows as $value)
+            <div class="table-responsive">
+                <table class="table table-hover align-middle datatable">
+                    <thead class="table-light">
                         <tr>
-                            <td>{{ $no }}</td>
-                            <?php $no++; ?>
-                            <td>
-                                <?php if ($value->foto != null && $value->foto != '') { ?>
-                                    <img src="{{ asset('uploads/' . $value->foto) }}" width="40" height="40" class="rounded-circle">
-                                <?php } else { ?>
-                                    <span class="badge bg-secondary rounded-circle p-2">-</span>
-                                <?php } ?>
-                            </td>
-                            <td>{{ $value->nama }}</td>
-                            <td>{{ $value->email }}</td>
-                            <td><span class="badge rounded-pill bg-primary">{{ ucfirst($value->role) }}</span></td>
-                            <td>{{ $value->no_hp }}</td>
-                            <?php if ($value->is_active == 1) { ?>
-                                <td><span class="badge rounded-pill bg-success">Aktif</span></td>
-                            <?php } else { ?>
-                                <td><span class="badge rounded-pill bg-secondary">Tidak Aktif</span></td>
-                            <?php } ?>
-                            <td>
-                                <?php if ($canWrite) { ?>
-                                <a href="/edit_users/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill" title="Edit"><i class="bi bi-pencil-square"></i></a>
-                                <?php } ?>
-                            </td>
+                            <th class="text-center">No</th>
+                            <th class="text-center">Foto</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>No HP</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php $no = 1; ?>
+                        <?php $roleBadges = ['owner' => 'bg-danger-subtle text-danger-emphasis border border-danger-subtle', 'admin' => 'bg-warning-subtle text-warning-emphasis border border-warning-subtle', 'mekanik' => 'bg-dark-subtle text-dark-emphasis border border-dark-subtle', 'kasir' => 'bg-success-subtle text-success-emphasis border border-success-subtle']; ?>
+                        {{-- $rows = kumpulan data pengguna dari controller, $value = satu baris data di setiap putaran --}}
+                        @foreach ($rows as $value)
+                            <tr>
+                                <td class="text-center">{{ $no }}</td>
+                                <?php $no++; ?>
+                                <td class="text-center">
+                                    <?php if ($value->foto != null && $value->foto != '') { ?>
+                                        <img src="{{ asset('uploads/' . $value->foto) }}" width="42" height="42" class="rounded-circle object-fit-cover shadow-sm">
+                                    <?php } else { ?>
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-circle p-2">-</span>
+                                    <?php } ?>
+                                </td>
+                                <td>{{ $value->nama }}</td>
+                                <td>{{ $value->email }}</td>
+                                <td><span class="badge rounded-pill px-3 py-2 {{ $roleBadges[strtolower($value->role)] ?? 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle' }}">{{ ucfirst($value->role) }}</span></td>
+                                <td>{{ $value->no_hp }}</td>
+                                <?php if ($value->is_active == 1) { ?>
+                                    <td class="text-center"><span class="badge rounded-pill bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2">Aktif</span></td>
+                                <?php } else { ?>
+                                    <td class="text-center"><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle px-3 py-2">Tidak Aktif</span></td>
+                                <?php } ?>
+                                <td class="text-center">
+                                    <?php if ($canWrite) { ?>
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <a href="/edit_users/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                    </div>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

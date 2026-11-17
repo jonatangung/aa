@@ -171,7 +171,7 @@ class SupplierController extends Controller
     //----- pdfSupplier(): Mengunduh laporan data supplier dalam format PDF
     public function pdfSupplier()
     {
-        RolePermission::cek('view:supplier');
+        RolePermission::cek('export:supplier');
 
         $export = new SupplierExport($this->supplierData());
 
@@ -181,7 +181,7 @@ class SupplierController extends Controller
     //----- excelSupplier(): Mengunduh laporan data supplier dalam format Excel (.xlsx)
     public function excelSupplier()
     {
-        RolePermission::cek('view:supplier');
+        RolePermission::cek('export:supplier');
 
         return Excel::download(
             new SupplierExport($this->supplierData()),

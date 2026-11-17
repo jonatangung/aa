@@ -12,17 +12,17 @@
             <form action="/tambah_jasa_servis_aksi" method="POST" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Nama Jasa</label>
                     <input type="text" name="nama_jasa" class="form-control" value="{{ old('nama_jasa') }}" required>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12">
                     <label class="form-label">Harga</label>
                     <input type="number" name="harga" class="form-control" value="{{ old('harga') }}" min="0" required>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12">
                     <label class="form-label">Estimasi Menit</label>
                     <input type="number" name="estimasi_menit" class="form-control" value="{{ old('estimasi_menit') }}" min="0">
                 </div>

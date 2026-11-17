@@ -131,7 +131,7 @@ class StokBarangController extends Controller
     //----- pdfStokBarang(): Mengunduh laporan stok barang dalam format PDF
     public function pdfStokBarang()
     {
-        RolePermission::cek('view:stok_barang');
+        RolePermission::cek('export:stok_barang');
 
         $export = new StokBarangExport($this->stokBarangData());
 
@@ -141,7 +141,7 @@ class StokBarangController extends Controller
     //----- excelStokBarang(): Mengunduh laporan stok barang dalam format Excel (.xlsx)
     public function excelStokBarang()
     {
-        RolePermission::cek('view:stok_barang');
+        RolePermission::cek('export:stok_barang');
 
         return Excel::download(
             new StokBarangExport($this->stokBarangData()),

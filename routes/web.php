@@ -126,27 +126,19 @@ Route::middleware(['auth', 'level:admin'])->group(function () {
 
 // =============================
 // EXPORT PDF & EXCEL
-// (mengikuti hak VIEW masing-masing resource)
+// Semua role yang login boleh mencoba, tapi controller menegakkan
+// RolePermission::cek('export:<fitur>') sehingga hanya admin & kasir
+// yang benar-benar bisa mengunduh. Role lain mendapat 403 Forbidden.
 // =============================
-
-// PDF & Excel: owner + admin + kasir
-Route::middleware(['auth', 'level:owner,admin,kasir'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/pelanggan/pdf', 'App\Http\Controllers\PelangganController@pdfPelanggan');
     Route::get('/pelanggan/excel', 'App\Http\Controllers\PelangganController@excelPelanggan');
     Route::get('/pembayaran/pdf', 'App\Http\Controllers\PembayaranController@pdfPembayaran');
     Route::get('/pembayaran/excel', 'App\Http\Controllers\PembayaranController@excelPembayaran');
-});
-
-// PDF & Excel: owner + admin + mekanik
-Route::middleware(['auth', 'level:owner,admin,mekanik'])->group(function () {
     Route::get('/kendaraan/pdf', 'App\Http\Controllers\KendaraanController@pdfKendaraan');
     Route::get('/kendaraan/excel', 'App\Http\Controllers\KendaraanController@excelKendaraan');
     Route::get('/servis/pdf', 'App\Http\Controllers\ServisController@pdfServis');
     Route::get('/servis/excel', 'App\Http\Controllers\ServisController@excelServis');
-});
-
-// PDF & Excel: owner + admin saja
-Route::middleware(['auth', 'level:owner,admin'])->group(function () {
     Route::get('/jasa-servis/pdf', 'App\Http\Controllers\JasaServisController@pdfJasaServis');
     Route::get('/jasa-servis/excel', 'App\Http\Controllers\JasaServisController@excelJasaServis');
     Route::get('/mekanik/pdf', 'App\Http\Controllers\MekanikController@pdfMekanik');

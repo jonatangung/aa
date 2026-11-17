@@ -135,7 +135,7 @@ class KendaraanController extends Controller
     //----- pdfKendaraan(): Mengunduh laporan data kendaraan dalam format PDF
     public function pdfKendaraan()
     {
-        RolePermission::cek('view:kendaraan');
+        RolePermission::cek('export:kendaraan');
 
         $export = new KendaraanExport($this->kendaraanData());
 
@@ -145,7 +145,7 @@ class KendaraanController extends Controller
     //----- excelKendaraan(): Mengunduh laporan data kendaraan dalam format Excel (.xlsx)
     public function excelKendaraan()
     {
-        RolePermission::cek('view:kendaraan');
+        RolePermission::cek('export:kendaraan');
 
         return Excel::download(
             new KendaraanExport($this->kendaraanData()),

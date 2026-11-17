@@ -12,7 +12,7 @@
             <form action="/tambah_kendaraan_aksi" method="POST" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Pelanggan</label>
                     <select name="pelanggan_id" class="form-select" required>
                         <option value="">-- Pilih Pelanggan --</option>
@@ -25,37 +25,37 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">No Polisi</label>
                     <input type="text" name="no_polisi" class="form-control" value="{{ old('no_polisi') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Merk</label>
                     <input type="text" name="merk" class="form-control" value="{{ old('merk') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Model</label>
                     <input type="text" name="model" class="form-control" value="{{ old('model') }}" required>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12">
                     <label class="form-label">Tahun</label>
                     <input type="number" name="tahun" class="form-control" value="{{ old('tahun') }}">
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-12">
                     <label class="form-label">Warna</label>
                     <input type="text" name="warna" class="form-control" value="{{ old('warna') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">No Rangka</label>
                     <input type="text" name="no_rangka" class="form-control" value="{{ old('no_rangka') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">No Mesin</label>
                     <input type="text" name="no_mesin" class="form-control" value="{{ old('no_mesin') }}">
                 </div>

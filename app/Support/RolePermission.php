@@ -7,8 +7,9 @@ class RolePermission
     //----- Daftar role yang tersedia
     public const ROLES = ['owner', 'admin', 'kasir', 'mekanik'];
 
-    //----- Hak akses per role. Format aksi: 'view:<fitur>' (lihat/export) dan 'write:<fitur>' (tambah/edit/hapus).
-    //     admin mendapat '*' = akses penuh. owner hanya bisa melihat.
+    //----- Hak akses per role. Format aksi: 'view:<fitur>' (lihat), 'write:<fitur>' (tambah/edit/hapus),
+    //     dan 'export:<fitur>' (download PDF/Excel).
+    //     admin mendapat '*' = akses penuh. owner hanya bisa melihat. Export hanya untuk admin & kasir.
     public const AKSES = [
         'admin' => ['*'],
 
@@ -29,9 +30,12 @@ class RolePermission
         'kasir' => [
             'view:pelanggan',
             'write:pelanggan',
+            'export:pelanggan',
             'view:pembayaran',
             'write:pembayaran',
+            'export:pembayaran',
             'view:laporan_pendapatan',
+            'export:laporan_pendapatan',
         ],
 
         'mekanik' => [

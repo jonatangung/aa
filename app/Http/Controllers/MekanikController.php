@@ -112,7 +112,7 @@ class MekanikController extends Controller
     //----- pdfMekanik(): Mengunduh laporan data mekanik dalam format PDF
     public function pdfMekanik()
     {
-        RolePermission::cek('view:mekanik');
+        RolePermission::cek('export:mekanik');
 
         $export = new MekanikExport($this->mekanikData());
 
@@ -122,7 +122,7 @@ class MekanikController extends Controller
     //----- excelMekanik(): Mengunduh laporan data mekanik dalam format Excel (.xlsx)
     public function excelMekanik()
     {
-        RolePermission::cek('view:mekanik');
+        RolePermission::cek('export:mekanik');
 
         return Excel::download(
             new MekanikExport($this->mekanikData()),

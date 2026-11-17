@@ -18,27 +18,27 @@
             <form action="/tambah_users_aksi" method="POST" enctype="multipart/form-data" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Nama</label>
                     <input type="text" name="nama" class="form-control" value="{{ old('nama') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">No HP</label>
                     <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Password</label>
                     <input type="password" name="password" class="form-control" required>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Role</label>
                     <select name="role" class="form-select" required>
                         <option value="">-- Pilih Role --</option>
@@ -49,7 +49,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Foto</label>
                     <input type="file" name="foto" class="form-control" accept="image/*">
                 </div>

@@ -146,7 +146,7 @@ class PembayaranController extends Controller
     //----- pdfPembayaran(): Mengunduh laporan pembayaran dalam format PDF
     public function pdfPembayaran()
     {
-        RolePermission::cek('view:pembayaran');
+        RolePermission::cek('export:pembayaran');
 
         $export = new PembayaranExport($this->pembayaranData()['rows']);
 
@@ -156,7 +156,7 @@ class PembayaranController extends Controller
     //----- excelPembayaran(): Mengunduh laporan pembayaran dalam format Excel (.xlsx)
     public function excelPembayaran()
     {
-        RolePermission::cek('view:pembayaran');
+        RolePermission::cek('export:pembayaran');
 
         return Excel::download(
             new PembayaranExport($this->pembayaranData()['rows']),

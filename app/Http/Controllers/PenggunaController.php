@@ -159,7 +159,7 @@ class PenggunaController extends Controller
     //----- pdfPengguna(): Mengunduh laporan data pengguna dalam format PDF
     public function pdfPengguna()
     {
-        RolePermission::cek('view:pengguna');
+        RolePermission::cek('export:pengguna');
 
         $export = new PenggunaExport($this->penggunaData());
 
@@ -169,7 +169,7 @@ class PenggunaController extends Controller
     //----- excelPengguna(): Mengunduh laporan data pengguna dalam format Excel (.xlsx)
     public function excelPengguna()
     {
-        RolePermission::cek('view:pengguna');
+        RolePermission::cek('export:pengguna');
 
         return Excel::download(
             new PenggunaExport($this->penggunaData()),

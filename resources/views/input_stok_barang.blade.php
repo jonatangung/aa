@@ -11,7 +11,7 @@
         <div class="card-body">
             {{-- Form pilih barang: GET ke halaman yang sama dengan supplier_id --}}
             <form action="/input_stok_barang" method="GET" class="row g-3 align-items-end mb-4">
-                <div class="col-md-8">
+                <div class="col-12">
                     <label class="form-label">Pilih Barang</label>
                     <select name="supplier_id" class="form-select" required>
                         <option value="" disabled @selected(request('supplier_id') == null)>-- Pilih Barang --</option>
@@ -31,7 +31,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-12">
                     <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill w-100"><i class="bi bi-search"></i> Pilih</button>
                 </div>
             </form>
@@ -39,7 +39,7 @@
             <?php if ($selectedBarang != null) { ?>
                 {{-- $selectedBarang = data barang yang dipilih, ditampilkan dua form di bawah --}}
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-12">
                         <div class="card shadow-sm border-0 border-top border-warning border-3 h-100"><div class="card-body">
                             <h6 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-box-arrow-in-down text-success"></i> Stok Masuk</h6>
                             <form action="/stok-barang_tambah" method="POST" class="row g-3">
@@ -64,7 +64,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-12">
                         <div class="card shadow-sm border-0 border-top border-warning border-3 h-100"><div class="card-body">
                             <h6 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-box-arrow-up text-danger"></i> Stok Keluar</h6>
                             <form action="/stok-barang_keluar/{{ $selectedBarang->id }}" method="POST" class="row g-3">

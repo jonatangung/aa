@@ -23,7 +23,7 @@
             <form action="/tambah_servis_aksi" method="POST" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Pelanggan</label>
                     <select name="pelanggan_id" class="form-select" required>
                         <option value="">-- Pilih Pelanggan --</option>
@@ -33,7 +33,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Kendaraan</label>
                     <select name="kendaraan_id" class="form-select" required>
                         <option value="">-- Pilih Kendaraan --</option>
@@ -43,7 +43,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Mekanik</label>
                     <select name="mekanik_id" class="form-select" required>
                         <option value="">-- Pilih Mekanik (Opsional) --</option>
@@ -53,7 +53,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select" required>
                         <option value="" selected disabled>-- Pilih Status --</option>
@@ -85,7 +85,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label">Metode Pembayaran</label>
                     <select name="metode_pembayaran" class="form-select" required>
                         <option value="" disabled>-- Pilih Metode Pembayaran --</option>

@@ -10,7 +10,7 @@
     <div class="pagetitle no-print">
         <h1>Dashboard Bengkel Pintar</h1>
     </div>
-    <p class="text-muted mb-4">Selamat datang, {{ session('u') }} ({{ $role }})</p>
+    <p class="text-white mb-4">Selamat datang, {{ session('u') }} ({{ $role }})</p>
 
     {{-- Kartu menu cepat, tiap kartu hanya tampil sesuai hak akses role user --}}
     <div class="row no-print mb-4">

@@ -31,6 +31,10 @@ class RolePermission
             'view:pelanggan',
             'write:pelanggan',
             'export:pelanggan',
+            'view:kendaraan',
+            'view:servis',
+            'write:servis',
+            'export:servis',
             'view:pembayaran',
             'write:pembayaran',
             'export:pembayaran',
@@ -38,11 +42,11 @@ class RolePermission
             'export:laporan_pendapatan',
         ],
 
+        //----- mekanik read-only: hanya melihat kendaraan, transaksi servis (antrean kerja), dan laporan servis.
+        //     Input transaksi servis dilakukan kasir; datanya otomatis tampil untuk semua role.
         'mekanik' => [
             'view:kendaraan',
-            'write:kendaraan',
             'view:servis',
-            'write:servis',
             'view:laporan_servis',
         ],
     ];

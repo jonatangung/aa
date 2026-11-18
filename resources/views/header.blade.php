@@ -10,8 +10,8 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="{{ asset('assets/img/favicon.png') }}" rel="icon">
-  <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+  <link href="{{ asset('assets/img/motor-logo.svg') }}" rel="icon">
+  <link href="{{ asset('assets/img/motor-logo.svg') }}" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -50,7 +50,7 @@
   <?php
       //----- Foto user diambil dari session; kosong -> pakai gambar default
       $fotoUrl = asset('assets/img/profile-img.jpg');
-      if (session('foto') != null && session('foto') != '') {
+      if (session('foto') != null && session('foto') != '' && file_exists(public_path('uploads/' . session('foto')))) {
           $fotoUrl = asset('uploads/' . session('foto'));
       }
   ?>
@@ -58,7 +58,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
       <a href="/home" class="logo d-flex align-items-center">
-        <img src="{{ asset('assets/img/logo.png') }}" alt="">
+        <img src="{{ asset('assets/img/motor-logo.svg') }}" alt="">
         <span class="d-none d-lg-block">Bengkel Pintar</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>

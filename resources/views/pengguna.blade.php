@@ -40,10 +40,10 @@
                                 <td class="text-center">{{ $no }}</td>
                                 <?php $no++; ?>
                                 <td class="text-center">
-                                    <?php if ($value->foto != null && $value->foto != '') { ?>
+                                    <?php if ($value->foto != null && $value->foto != '' && file_exists(public_path('uploads/' . $value->foto))) { ?>
                                         <img src="{{ asset('uploads/' . $value->foto) }}" width="42" height="42" class="rounded-circle object-fit-cover shadow-sm">
                                     <?php } else { ?>
-                                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-circle p-2">-</span>
+                                        <img src="{{ asset('assets/img/profile-img.jpg') }}" width="42" height="42" class="rounded-circle object-fit-cover shadow-sm">
                                     <?php } ?>
                                 </td>
                                 <td>{{ $value->nama }}</td>

@@ -37,33 +37,8 @@
             </form>
 
             <?php if ($selectedBarang != null) { ?>
-                {{-- $selectedBarang = data barang yang dipilih, ditampilkan dua form di bawah --}}
+                {{-- $selectedBarang = data barang yang dipilih, ditampilkan form stok keluar --}}
                 <div class="row g-3">
-                    <div class="col-12">
-                        <div class="card shadow-sm border-0 border-top border-warning border-3 h-100"><div class="card-body">
-                            <h6 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-box-arrow-in-down text-success"></i> Stok Masuk</h6>
-                            <form action="/stok-barang_tambah" method="POST" class="row g-3">
-                                @csrf
-                                <input type="hidden" name="supplier_id" value="{{ $selectedBarang->id }}">
-
-                                <div class="col-12">
-                                    <label class="form-label">Jumlah Masuk</label>
-                                    <input type="number" name="jumlah" min="1" class="form-control" required>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Tanggal Masuk</label>
-                                    <input type="date" name="tanggal" value="{{ date('Y-m-d') }}" class="form-control" required>
-                                </div>
-
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-success rounded-pill w-100"><i class="bi bi-check-lg-circle"></i> Simpan Masuk</button>
-                                </div>
-                            </form>
-                        </div>
-                        </div>
-                    </div>
-
                     <div class="col-12">
                         <div class="card shadow-sm border-0 border-top border-warning border-3 h-100"><div class="card-body">
                             <h6 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-box-arrow-up text-danger"></i> Stok Keluar</h6>

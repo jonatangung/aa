@@ -14,6 +14,17 @@ Route::middleware('guest')->group(function () {
 });
 
 // =============================
+// ROUTE SIGNED (QR Code Data Masuk)
+// Tanpa login, hanya bisa diakses via signed URL yang berlaku 5 menit
+// =============================
+Route::middleware(['web', 'signed'])->group(function () {
+    Route::get('/data-masuk', 'App\Http\Controllers\StokBarangController@dataMasukForm')->name('data-masuk.form');
+});
+Route::middleware(['web'])->group(function () {
+    Route::post('/data-masuk/simpan', 'App\Http\Controllers\StokBarangController@simpanDataMasuk')->name('data-masuk.simpan');
+});
+
+// =============================
 // ROUTE DASAR (login saja)
 // =============================
 Route::middleware('auth')->group(function () {
@@ -118,6 +129,7 @@ Route::middleware(['auth', 'level:admin'])->group(function () {
     Route::get('/input_stok_barang', 'App\Http\Controllers\StokBarangController@inputStokBarang');
     Route::post('/stok-barang_tambah', 'App\Http\Controllers\StokBarangController@stokMasuk');
     Route::post('/stok-barang_keluar/{id}', 'App\Http\Controllers\StokBarangController@stokKeluar');
+    Route::get('/stok-barang/generate-qr', 'App\Http\Controllers\StokBarangController@generateQRCode')->name('stok-barang.generate-qr');
 
     // Pengguna
     Route::get('/tambah_users', 'App\Http\Controllers\PenggunaController@tambahPengguna');

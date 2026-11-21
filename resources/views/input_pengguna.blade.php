@@ -1,5 +1,8 @@
 @extends('template')
 
+@section('back_url', '/pengguna')
+@section('back_text', 'Kembali')
+
 @section('content')
 {{-- Halaman form tambah pengguna baru. Tidak ada data dari controller, form dikirim ke PenggunaController method simpanPengguna() --}}
 

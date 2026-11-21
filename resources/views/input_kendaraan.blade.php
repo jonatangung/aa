@@ -1,5 +1,8 @@
 @extends('template')
 
+@section('back_url', '/kendaraan')
+@section('back_text', 'Kembali')
+
 @section('content')
 {{-- Halaman form tambah kendaraan baru. Data $pelanggan dikirim dari KendaraanController method tambahKendaraan(). Data dikirim ke method simpanKendaraan() --}}
 

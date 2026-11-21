@@ -10,8 +10,8 @@
     <div class="pagetitle no-print">
         <h1 style="background: linear-gradient(135deg, #FFD700 0%, #FFB300 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Dashboard Bengkel Pintar</h1>
     </div>
-    <div class="d-inline-block rounded-3 mb-4 px-3 py-2 shadow-sm" style="background: #ffffff; border: 1px solid #bdbdbd;">
-        <span class="d-flex align-items-center gap-2" style="color: #212529; font-weight: 600;">
+    <div class="d-inline-block rounded-3 mb-4 px-3 py-2 shadow-sm" style="background: #ffffff; border: 1px solid #bdbdbd; width: fit-content;">
+        <span class="d-inline-flex align-items-center gap-2" style="color: #212529; font-weight: 600; white-space: nowrap;">
             <i class="bi bi-wrench-adjustable text-warning"></i>
             Selamat datang, <span style="text-transform: uppercase;">{{ session('u', '') }}</span> ({{ $role }})
         </span>

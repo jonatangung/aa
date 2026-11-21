@@ -1,5 +1,8 @@
 @extends('template')
 
+@section('back_url', '/jasa-servis')
+@section('back_text', 'Kembali')
+
 @section('content')
 {{-- Halaman form tambah jasa servis baru. Data dikirim ke JasaServisController method simpanJasaServis() --}}
 

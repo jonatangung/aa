@@ -11,12 +11,21 @@
 --------------------------------------------------------------*/
 :root {
   scroll-behavior: smooth;
+  --footer-margin-top: 10px;
 }
 
 body {
   font-family: "Open Sans", sans-serif;
-  background: #E9ECEF;
+  background: url("../img/download.jpeg") no-repeat center center fixed !important;
+  background-size: cover !important;
   color: #444444;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#main {
+  flex: 1;
 }
 
 a {
@@ -45,6 +54,7 @@ h6 {
   margin-top: 60px;
   padding: 20px 30px;
   transition: all 0.3s;
+  flex: 1;
 }
 
 @media (max-width: 1199px) {
@@ -218,7 +228,8 @@ h6 {
 
 /* Card */
 .card {
-  margin-bottom: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   border: none;
   border-radius: 5px;
   background-color: #FFFFFF;
@@ -1224,15 +1235,23 @@ h6 {
 # Footer
 --------------------------------------------------------------*/
 .footer {
-  padding: 20px 0;
+  padding: 20px 30px;
   font-size: 14px;
   transition: all 0.3s;
-  border-top: 1px solid #cddfff;
+  border: none;
+  background: linear-gradient(135deg, #FFD700 0%, #FFB300 100%);
+  margin-top: var(--footer-margin-top, 30px);
+}
+
+@media (max-width: 1199px) {
+  .footer {
+    padding: 20px;
+  }
 }
 
 .footer .copyright {
   text-align: center;
-  color: #012970;
+  color: #fff;
 }
 
 .footer .credits {
@@ -1342,6 +1361,17 @@ h6 {
 
 .datatable-top {
   border-bottom: 1px solid #f0f2f5;
+}
+
+.datatable-search {
+  margin-left: auto;
+}
+
+.datatable-search label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .datatable-bottom {

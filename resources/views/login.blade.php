@@ -6,8 +6,10 @@
     <title>LOGIN</title>
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
 </head>
-<body class="bg-light auth-page">
+<body class="auth-page">
+
 
     {{-- Halaman login. Form dikirim ke LoginController method aksilogin() --}}
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
@@ -15,10 +17,10 @@
         <div class="row justify-content-center w-100">
             <div class="col-md-5 col-lg-4">
                 <div class="auth-card card shadow-sm border-0 border-top border-warning border-3">
-                    <div class="card-body">
+                    <div class="card-body pt-4">
 
-                        <div class="text-center mb-4">
-                            <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" height="64">
+                        <div class="text-center mb-5">
+                            <img src="{{ asset('assets/img/download (1).jpeg') }}" alt="Logo" height="64">
                             <h2 class="fw-bold mt-3 mb-1">LOGIN</h2>
                             <p class="text-muted small mb-0">Bengkel Pintar</p>
                         </div>

@@ -8,9 +8,14 @@
         $canView = fn (string $resource) => \App\Support\RolePermission::boleh('view:' . $resource, $role);
     ?>
     <div class="pagetitle no-print">
-        <h1>Dashboard Bengkel Pintar</h1>
+        <h1 style="background: linear-gradient(135deg, #FFD700 0%, #FFB300 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Dashboard Bengkel Pintar</h1>
     </div>
-    <p class="text-muted mb-4">Selamat datang, {{ session('u') }} ({{ $role }})</p>
+    <div class="d-inline-block rounded-3 mb-4 px-3 py-2 shadow-sm" style="background: #ffffff; border: 1px solid #bdbdbd;">
+        <span class="d-flex align-items-center gap-2" style="color: #212529; font-weight: 600;">
+            <i class="bi bi-wrench-adjustable text-warning"></i>
+            Selamat datang, <span style="text-transform: uppercase;">{{ session('u', '') }}</span> ({{ $role }})
+        </span>
+    </div>
 
     {{-- Kartu menu cepat, tiap kartu hanya tampil sesuai hak akses role user --}}
     <div class="row no-print mb-4">

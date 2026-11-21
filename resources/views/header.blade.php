@@ -58,7 +58,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
       <a href="/home" class="logo d-flex align-items-center">
-        <img src="{{ asset('assets/img/logo.png') }}" alt="">
+        <img src="{{ asset('assets/img/download (1).jpeg') }}" alt="">
         <span class="d-none d-lg-block">Bengkel Pintar</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -68,16 +68,19 @@
       <ul class="d-flex align-items-center">
         <li class="nav-item dropdown pe-3">
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{ $fotoUrl }}" alt="Profile" class="rounded-circle border border-2 border-warning p-0">
+            <img src="{{ $fotoUrl }}" alt="Profile" class="rounded-circle border border-1 border-warning p-0">
             <span class="d-none d-md-block dropdown-toggle ps-2 text-white">{{ session('u', 'Pengguna') }}</span>
           </a>
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li class="dropdown-header">
-              <h6>{{ session('u', 'Pengguna') }}</h6>
-              <span>Akun Pengguna</span>
-            </li>
-            <li>
+          <li class="dropdown-header d-flex align-items-center text-start">
+              <img src="{{ $fotoUrl }}" alt="Profile" class="rounded-circle me-2" style="width: 45px; height: 45px; object-fit: cover;">
+              <div>
+                <h6 class="mb-0">{{ session('u', 'Pengguna') }}</h6>
+                <span>Akun Pengguna</span>
+              </div>
+          </li>
+
               <hr class="dropdown-divider">
             </li>
             <li>

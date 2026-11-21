@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOGIN</title>
+    <link href="{{ asset('assets/img/motor-logo.svg') }}" rel="icon">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
 </head>
 <body class="auth-page">
-
 
     {{-- Halaman login. Form dikirim ke LoginController method aksilogin() --}}
     <div class="container d-flex justify-content-center align-items-center min-vh-100">

@@ -16,8 +16,7 @@
 
 body {
   font-family: "Open Sans", sans-serif;
-  background: url("../img/download.jpeg") no-repeat center center fixed !important;
-  background-size: cover !important;
+  background: url('../img/motor-bg.svg') center / 480px no-repeat fixed, #000 url('../img/download.jpeg') center / cover no-repeat fixed !important;
   color: #444444;
   min-height: 100vh;
   display: flex;
@@ -55,11 +54,16 @@ h6 {
   padding: 20px 30px;
   transition: all 0.3s;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
 }
 
 @media (max-width: 1199px) {
   #main {
     padding: 20px;
+    min-height: calc(100vh - 60px);
   }
 }
 
@@ -74,7 +78,7 @@ h6 {
   font-size: 24px;
   margin-bottom: 0;
   font-weight: 600;
-  color: #012970;
+  color: #FFD700;
 }
 
 /*--------------------------------------------------------------
@@ -499,6 +503,9 @@ h6 {
 
 .header-nav .nav-profile img {
   max-height: 36px;
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
 }
 
 .header-nav .nav-profile span {
@@ -631,7 +638,7 @@ h6 {
   scrollbar-width: thin;
   scrollbar-color: #aab7cf transparent;
   box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1);
-  background-color: #F4F5F7;
+  background-color: #FFFFFF;
 }
 
 @media (max-width: 1199px) {
@@ -652,8 +659,7 @@ h6 {
 
 @media (min-width: 1200px) {
 
-  #main,
-  #footer {
+  #main {
     margin-left: 300px;
   }
 }
@@ -666,8 +672,7 @@ h6 {
 
 @media (min-width: 1200px) {
 
-  .toggle-sidebar #main,
-  .toggle-sidebar #footer {
+  .toggle-sidebar #main {
     margin-left: 0;
   }
 
@@ -1258,7 +1263,7 @@ h6 {
   padding-top: 5px;
   text-align: center;
   font-size: 13px;
-  color: #012970;
+  color: #FFD700;
 }
 
 /*--------------------------------------------------------------

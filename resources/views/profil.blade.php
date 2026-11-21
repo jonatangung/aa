@@ -42,8 +42,10 @@
                     <div class="col-md-6">
                         <label class="form-label">Foto Profil</label>
                         <input type="file" name="foto" class="form-control" accept="image/*">
-                        <?php if ($user->foto != null && $user->foto != '') { ?>
+                        <?php if ($user->foto != null && $user->foto != '' && file_exists(public_path('uploads/' . $user->foto))) { ?>
                             <img src="{{ asset('uploads/' . $user->foto) }}" width="90" class="mt-3 rounded-circle">
+                        <?php } else { ?>
+                            <img src="{{ asset('assets/img/profile-img.jpg') }}" width="90" class="mt-3 rounded-circle">
                         <?php } ?>
                     </div>
 

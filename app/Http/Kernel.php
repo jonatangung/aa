@@ -72,6 +72,7 @@ class Kernel extends HttpKernel //--- Class Kernel kita mewarisi (extends) HttpK
         'level' => \App\Http\Middleware\CekLevel::class, //--- Cek level/role user sesuai parameter, misal: 'level:owner,admin'
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class, //--- Meminta konfirmasi password sebelum melanjutkan aksi
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class, //--- Mendukung fitur precognition (preview validasi sebelum submit)
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class, //--- Validasi signature URL untuk signed routes (QR Code)
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class, //--- Membatasi frekuensi request (rate limit) per user/IP
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class, //--- Memastikan email user sudah diverifikasi
     ];

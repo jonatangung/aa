@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use App\Exports\StokBarangExport;
 use App\Support\RolePermission;
 use Maatwebsite\Excel\Facades\Excel;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 //----- StokBarangController: menangani rekap dan transaksi stok barang (masuk/keluar) beserta export PDF/Excel
 class StokBarangController extends Controller
@@ -147,5 +149,78 @@ class StokBarangController extends Controller
             new StokBarangExport($this->stokBarangData()),
             'laporan-stok-barang-' . date('Y-m-d') . '.xlsx'
         );
+    }
+
+    //----- generateQRCode(): Generate QR Code sementara untuk halaman Data Masuk (berlaku 5 menit)
+    public function generateQRCode()
+    {
+        RolePermission::cek('write:stok_barang');
+
+        // Generate signed URL yang berlaku 5 menit
+        $signedUrl = URL::temporarySignedRoute(
+            'data-masuk.form',
+            now()->addMinutes(5)
+        );
+
+        // Generate QR Code dari signed URL sebagai string SVG
+        $qrCodeSvg = (string) QrCode::size(300)->generate($signedUrl);
+
+        return response()->json([
+            'qr_code' => $qrCodeSvg,
+            'type' => 'svg',
+            'expires_in_seconds' => 300, // 5 menit = 300 detik
+        ]);
+    }
+
+    //----- dataMasukForm(): Halaman publik Data Masuk (hanya bisa diakses via signed URL QR Code)
+    public function dataMasukForm()
+    {
+        // Mendapatkan daftar barang dari tabel supplier
+        $barangList = DB::table('supplier')
+            ->select('id', 'nama_barang', 'nama_supplier')
+            ->whereNotNull('nama_barang')
+            ->where('nama_barang', '!=', '')
+            ->orderBy('nama_barang')
+            ->get();
+
+        return view('data-masuk', [
+            'barangList' => $barangList,
+            'today' => now()->toDateString(),
+        ]);
+    }
+
+    //----- simpanDataMasuk(): Menyimpan data masuk dari form publik
+    public function simpanDataMasuk(Request $request)
+    {
+        $validated = $request->validate([
+            'supplier_id' => 'required|integer|exists:supplier,id',
+            'stok_masuk' => 'required|integer|min:1',
+            'harga' => 'required|numeric|min:0',
+            'tanggal_masuk' => 'required|date',
+        ]);
+
+        $supplierId = $validated['supplier_id'];
+        $stokMasuk = $validated['stok_masuk'];
+        $harga = $validated['harga'];
+        $tanggalMasuk = $validated['tanggal_masuk'];
+
+        // Insert ke tabel stok_barang
+        DB::table('stok_barang')->insert([
+            'supplier_id' => $supplierId,
+            'jenis' => 'masuk',
+            'jumlah' => $stokMasuk,
+            'tanggal' => $tanggalMasuk,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Update tabel supplier (harga ditambahkan, tanggal_masuk diupdate, stok otomatis diupdate oleh trigger)
+        DB::table('supplier')->where('id', $supplierId)->update([
+            'harga' => DB::raw('harga + ' . $harga),
+            'tanggal_masuk' => $tanggalMasuk,
+            'updated_at' => now(),
+        ]);
+
+        return view('data-masuk-success');
     }
 }

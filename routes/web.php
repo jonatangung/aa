@@ -14,6 +14,17 @@ Route::middleware('guest')->group(function () {
 });
 
 // =============================
+// ROUTE SIGNED (QR Code Data Masuk)
+// Tanpa login, hanya bisa diakses via signed URL yang berlaku 5 menit
+// =============================
+Route::middleware(['web', 'signed'])->group(function () {
+    Route::get('/data-masuk', 'App\Http\Controllers\StokBarangController@dataMasukForm')->name('data-masuk.form');
+});
+Route::middleware(['web'])->group(function () {
+    Route::post('/data-masuk/simpan', 'App\Http\Controllers\StokBarangController@simpanDataMasuk')->name('data-masuk.simpan');
+});
+
+// =============================
 // ROUTE DASAR (login saja)
 // =============================
 Route::middleware('auth')->group(function () {
@@ -35,8 +46,8 @@ Route::middleware(['auth', 'level:owner,admin,kasir'])->group(function () {
     Route::get('/laporan-pendapatan', 'App\Http\Controllers\LaporanController@laporanPendapatan');
 });
 
-// owner + admin + mekanik: kendaraan, servis, laporan servis
-Route::middleware(['auth', 'level:owner,admin,mekanik'])->group(function () {
+// owner + admin + kasir + mekanik: kendaraan, servis, laporan servis
+Route::middleware(['auth', 'level:owner,admin,kasir,mekanik'])->group(function () {
     Route::get('/kendaraan', 'App\Http\Controllers\KendaraanController@kendaraan');
     Route::get('/servis', 'App\Http\Controllers\ServisController@servis');
     Route::get('/laporan-servis', 'App\Http\Controllers\LaporanController@laporanServis');
@@ -71,15 +82,18 @@ Route::middleware(['auth', 'level:admin,kasir'])->group(function () {
     Route::post('/hapus_pembayaran/{id}', 'App\Http\Controllers\PembayaranController@hapusPembayaran');
 });
 
-// ROLE: admin + mekanik (kendaraan & servis)
-Route::middleware(['auth', 'level:admin,mekanik'])->group(function () {
+// ROLE: admin saja (kendaraan - read-only untuk role lain)
+Route::middleware(['auth', 'level:admin'])->group(function () {
     // Kendaraan
     Route::get('/tambah_kendaraan', 'App\Http\Controllers\KendaraanController@tambahKendaraan');
     Route::post('/tambah_kendaraan_aksi', 'App\Http\Controllers\KendaraanController@simpanKendaraan');
     Route::get('/edit_kendaraan/{id}', 'App\Http\Controllers\KendaraanController@editKendaraan');
     Route::post('/edit_kendaraan_aksi/{id}', 'App\Http\Controllers\KendaraanController@updateKendaraan');
     Route::post('/hapus_kendaraan/{id}', 'App\Http\Controllers\KendaraanController@hapusKendaraan');
+});
 
+// ROLE: admin + kasir (input transaksi servis; mekanik hanya melihat)
+Route::middleware(['auth', 'level:admin,kasir'])->group(function () {
     // Servis
     Route::get('/tambah_servis', 'App\Http\Controllers\ServisController@tambahServis');
     Route::post('/tambah_servis_aksi', 'App\Http\Controllers\ServisController@simpanServis');
@@ -115,6 +129,7 @@ Route::middleware(['auth', 'level:admin'])->group(function () {
     Route::get('/input_stok_barang', 'App\Http\Controllers\StokBarangController@inputStokBarang');
     Route::post('/stok-barang_tambah', 'App\Http\Controllers\StokBarangController@stokMasuk');
     Route::post('/stok-barang_keluar/{id}', 'App\Http\Controllers\StokBarangController@stokKeluar');
+    Route::get('/stok-barang/generate-qr', 'App\Http\Controllers\StokBarangController@generateQRCode')->name('stok-barang.generate-qr');
 
     // Pengguna
     Route::get('/tambah_users', 'App\Http\Controllers\PenggunaController@tambahPengguna');

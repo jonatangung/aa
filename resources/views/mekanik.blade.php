@@ -11,9 +11,9 @@
             <h5 class="card-title mb-0">Data Mekanik</h5>
             <div class="d-flex gap-2 flex-wrap no-print">
                 <?php if ($canWrite) { ?>
-                <a href="/tkry" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-plus-lg-circle"></i> Tambah Mekanik</a>
+                <button type="button" class="btn btn-warning text-white fw-semibold btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#modalTambahMekanik"><i class="bi bi-plus-lg-circle"></i> Tambah Mekanik</button>
                 <?php } ?>
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
                 <?php if ($canExport) { ?>
                 <a href="/mekanik/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
                 <a href="/mekanik/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
@@ -72,7 +72,7 @@
                                 <td class="text-center">
                                     <div class="d-inline-flex gap-1 align-items-center">
                                         <?php if ($canWrite) { ?>
-                                        <a href="/edit_mekanik/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                        <a href="/edit_mekanik/{{ $value->id }}" class="btn btn-warning text-white fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
                                         <form action="/hapus_mekanik/{{ $value->id }}" method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-danger btn-sm rounded-3" title="Hapus"><i class="bi bi-trash"></i></button>
@@ -84,6 +84,41 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Tambah Mekanik --}}
+    <div class="modal fade modal-gold no-print" id="modalTambahMekanik" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-tools"></i> Tambah Mekanik</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/aksi_tkry" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nama Mekanik</label>
+                                <input type="text" name="nama" class="form-control" value="{{ old('nama') }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">No HP</label>
+                                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Spesialisasi</label>
+                                <input type="text" name="spesialisasi" class="form-control" value="{{ old('spesialisasi') }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Batal</button>
+                        <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -28,9 +28,9 @@
 
   <!-- Template Main CSS File -->
   <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
-  
+
   <!-- Ultra 3D Theme CSS -->
-  <link href="{{ asset('assets/css/ultra-3d-theme.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/css/ultra-3d-theme.css?v=3') }}" rel="stylesheet">
   
   <style>
     @media print {
@@ -72,7 +72,7 @@
       <ul class="d-flex align-items-center">
         <li class="nav-item dropdown pe-3">
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{ $fotoUrl }}" alt="Profile" class="rounded-circle border border-2 border-warning p-0">
+            <img src="{{ $fotoUrl }}" alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-warning p-0" style="object-fit: cover;">
             <span class="d-none d-md-block dropdown-toggle ps-2 text-white">{{ session('u', 'Pengguna') }}</span>
           </a>
 

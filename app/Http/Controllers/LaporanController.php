@@ -19,17 +19,30 @@ class LaporanController extends Controller
     {
         RolePermission::cek('view:laporan_servis');
 
-        $validated = $request->validate([
-            'from' => 'nullable|date',
-            'to' => 'nullable|date|after_or_equal:from',
-            'export' => 'nullable|in:pdf,excel',
-        ]);
+        $isTamu = session('role') === 'tamu';
 
-        //----- $rows = hasil query laporan servis dengan filter tanggal
+        // Validasi berbeda untuk tamu vs role lain
+        if ($isTamu) {
+            // Untuk tamu, validasi hanya jika parameter dikirim (bukan saat pertama buka halaman)
+            if ($request->has('no_servis') || $request->has('no_polisi')) {
+                $validated = $request->validate([
+                    'no_servis' => 'required|string',
+                    'no_polisi' => 'required|string',
+                ]);
+            }
+        } else {
+            $validated = $request->validate([
+                'from' => 'nullable|date',
+                'to' => 'nullable|date|after_or_equal:from',
+                'export' => 'nullable|in:pdf,excel',
+            ]);
+        }
+
+        //----- $rows = hasil query laporan servis dengan filter tanggal atau kode servis+no polisi
         $rows = $this->laporanServisData($request);
 
         //----- Export butuh izin export:laporan_servis (hanya admin & kasir); selain itu 403
-        if ($request->export != null && $request->export != '') {
+        if (!$isTamu && $request->export != null && $request->export != '') {
             RolePermission::cek('export:laporan_servis');
 
             if ($request->export == 'pdf') {
@@ -45,12 +58,22 @@ class LaporanController extends Controller
             }
         }
 
-        return view('laporan-servis', ['rows' => $rows]);
+        return view('laporan-servis', [
+            'rows' => $rows,
+            'isTamu' => $isTamu,
+        ]);
     }
 
-    //----- laporanServisData(): Query data servis join kendaraan, pelanggan, mekanik dengan filter tanggal (private)
+    //----- laporanServisData(): Query data servis join kendaraan, pelanggan, mekanik dengan filter tanggal atau kode servis+no polisi (private)
     private function laporanServisData(Request $request)
     {
+        $isTamu = session('role') === 'tamu';
+
+        // Untuk tamu, jika belum memasukkan parameter, return empty collection
+        if ($isTamu && (!$request->has('no_servis') || !$request->has('no_polisi'))) {
+            return collect();
+        }
+
         $query = DB::table('servis')
             ->join('kendaraan', 'servis.kendaraan_id', '=', 'kendaraan.id')
             ->join('pelanggan', 'kendaraan.pelanggan_id', '=', 'pelanggan.id')
@@ -65,14 +88,20 @@ class LaporanController extends Controller
                 'servis.status'
             );
 
-        //----- Filter tanggal mulai kalau diisi
-        if ($request->from != null && $request->from != '') {
-            $query->whereDate('servis.tanggal_masuk', '>=', $request->from);
-        }
+        //----- Filter untuk tamu: kode servis + no polisi WAJIB cocok
+        if ($isTamu) {
+            $query->where('servis.no_servis', $request->no_servis)
+                  ->where('kendaraan.no_polisi', $request->no_polisi);
+        } else {
+            //----- Filter tanggal mulai kalau diisi (untuk role lain)
+            if ($request->from != null && $request->from != '') {
+                $query->whereDate('servis.tanggal_masuk', '>=', $request->from);
+            }
 
-        //----- Filter tanggal akhir kalau diisi
-        if ($request->to != null && $request->to != '') {
-            $query->whereDate('servis.tanggal_masuk', '<=', $request->to);
+            //----- Filter tanggal akhir kalau diisi (untuk role lain)
+            if ($request->to != null && $request->to != '') {
+                $query->whereDate('servis.tanggal_masuk', '<=', $request->to);
+            }
         }
 
         return $query->orderByDesc('servis.tanggal_masuk')->get();

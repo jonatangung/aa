@@ -21,6 +21,25 @@
             .dataTable_wrapper > :not(table) {
                 display: none !important;
             }
+            /* Paksa teks biru tua agar terbaca jelas saat dicetak */
+            #main.main,
+            #main.main .card,
+            #main.main .card-title,
+            #main.main .table,
+            #main.main .table thead th,
+            #main.main .table tbody td,
+            #main.main .table tfoot td,
+            #main.main .badge {
+                color: #1d4ed8 !important;
+            }
+            #main.main .table thead th {
+                background-color: #dbeafe !important;
+                text-shadow: none !important;
+            }
+            #main.main .badge {
+                background-color: #dbeafe !important;
+                border-color: #93c5fd !important;
+            }
         }
     </style>
 
@@ -32,7 +51,7 @@
                 <a href="/laporan-pendapatan?from={{ request('from') }}&to={{ request('to') }}&export=pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
                 <a href="/laporan-pendapatan?from={{ request('from') }}&to={{ request('to') }}&export=excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
                 <?php } ?>
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
             </div>
         </div>
 
@@ -48,7 +67,7 @@
                     <input type="date" id="to" name="to" value="{{ request('to') }}" class="form-control">
                 </div>
                 <div class="col-md-6 d-flex gap-2">
-                    <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill"><i class="bi bi-funnel"></i> Filter</button>
+                    <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill"><i class="bi bi-funnel"></i> Filter</button>
                     <a href="/laporan-pendapatan" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
                 </div>
             </form>

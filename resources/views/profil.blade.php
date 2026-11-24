@@ -43,19 +43,19 @@
                         <label class="form-label">Foto Profil</label>
                         <input type="file" name="foto" class="form-control" accept="image/*">
                         <?php if ($user->foto != null && $user->foto != '' && file_exists(public_path('uploads/' . $user->foto))) { ?>
-                            <img src="{{ asset('uploads/' . $user->foto) }}" width="90" class="mt-3 rounded-circle">
+                            <img src="{{ asset('uploads/' . $user->foto) }}" width="90" height="90" class="mt-3 rounded-circle" style="object-fit: cover;">
                         <?php } else { ?>
-                            <img src="{{ asset('assets/img/profile-img.jpg') }}" width="90" class="mt-3 rounded-circle">
+                            <img src="{{ asset('assets/img/profile-img.jpg') }}" width="90" height="90" class="mt-3 rounded-circle" style="object-fit: cover;">
                         <?php } ?>
                     </div>
 
                     <div class="col-12 d-flex gap-2 mt-2">
-                        <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan Profil</button>
+                        <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan Profil</button>
                         <a href="/home" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Kembali</a>
                     </div>
                 </form>
             <?php } else { ?>
-                <p class="text-muted mb-0">Data profil tidak ditemukan.</p>
+                <p class="text-white-50 mb-0">Data profil tidak ditemukan.</p>
             <?php } ?>
         </div>
     </div>

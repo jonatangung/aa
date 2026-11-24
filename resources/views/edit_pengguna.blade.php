@@ -46,9 +46,9 @@
                     <label class="form-label">Foto Profil</label>
                     <input type="file" name="foto" class="form-control" accept="image/*">
                     <?php if ($row->foto != null && $row->foto != '' && file_exists(public_path('uploads/' . $row->foto))) { ?>
-                        <img src="{{ asset('uploads/' . $row->foto) }}" width="80" class="mt-2 rounded-circle">
+                        <img src="{{ asset('uploads/' . $row->foto) }}" width="80" height="80" class="mt-2 rounded-circle" style="object-fit: cover;">
                     <?php } else { ?>
-                        <img src="{{ asset('assets/img/profile-img.jpg') }}" width="80" class="mt-2 rounded-circle">
+                        <img src="{{ asset('assets/img/profile-img.jpg') }}" width="80" height="80" class="mt-2 rounded-circle" style="object-fit: cover;">
                     <?php } ?>
                 </div>
 

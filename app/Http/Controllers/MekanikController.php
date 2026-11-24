@@ -44,7 +44,7 @@ class MekanikController extends Controller
         $user = DB::table('users')->where('id', session('id_user'))->first();
 
         if (!$user) {
-            return redirect('/tkry');
+            return redirect('/mekanik')->with('gagal', 'Data gagal disimpan: pengguna tidak ditemukan.');
         }
 
         $validated = $request->validate([
@@ -61,9 +61,17 @@ class MekanikController extends Controller
             'status' => 'aktif',
         ];
 
-        DB::table('mekanik')->insert($data);
+        try {
+            $tersimpan = DB::table('mekanik')->insert($data);
 
-        return redirect('/mekanik');
+            if (!$tersimpan) {
+                return redirect('/mekanik')->with('gagal', 'Data mekanik gagal disimpan ke database. Silakan coba lagi.');
+            }
+
+            return redirect('/mekanik')->with('sukses', 'Data mekanik berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/mekanik')->with('gagal', 'Data mekanik gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- editMekanik(): Menampilkan form edit mekanik berdasarkan id. Mengirim data $row ke view edit_mekanik. where() = cari data, first() = ambil satu data

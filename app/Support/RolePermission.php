@@ -5,7 +5,7 @@ namespace App\Support;
 class RolePermission
 {
     //----- Daftar role yang tersedia
-    public const ROLES = ['owner', 'admin', 'kasir', 'mekanik'];
+    public const ROLES = ['owner', 'admin', 'kasir', 'mekanik', 'tamu'];
 
     //----- Hak akses per role. Format aksi: 'view:<fitur>' (lihat), 'write:<fitur>' (tambah/edit/hapus),
     //     dan 'export:<fitur>' (download PDF/Excel).
@@ -47,6 +47,11 @@ class RolePermission
         'mekanik' => [
             'view:kendaraan',
             'view:servis',
+            'view:laporan_servis',
+        ],
+
+        //----- tamu (guest) hanya bisa melihat laporan servis dengan memasukkan kode servis + no polisi
+        'tamu' => [
             'view:laporan_servis',
         ],
     ];

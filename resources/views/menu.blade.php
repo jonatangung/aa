@@ -104,7 +104,7 @@
         <li class="nav-item">
             <a class="<?= $navClass(['laporan-servis', 'laporan-servis/*']) ?>" href="/laporan-servis">
                 <i class="bi bi-file-earmark-text"></i>
-                <span>Laporan Servis</span>
+                <span><?= $role === 'tamu' ? 'Cek Servis' : 'Laporan Servis' ?></span>
             </a>
         </li>
         <?php } ?>

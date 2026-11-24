@@ -20,7 +20,11 @@ class StokBarangController extends Controller
     {
         RolePermission::cek('view:stok_barang');
 
-        return view('stok-barang', ['rows' => $this->stokBarangData()]);
+        //----- $supplierData dipakai untuk dropdown pilih barang di modal kelola stok
+        return view('stok-barang', [
+            'rows' => $this->stokBarangData(),
+            'supplierData' => DB::table('supplier')->get(),
+        ]);
     }
 
     //----- stokBarangData(): Query rekap total stok masuk/keluar per barang beserta tanggal terakhir (private)
@@ -74,21 +78,25 @@ class StokBarangController extends Controller
         //----- Tanggal kosong berarti pakai tanggal hari ini
         $tanggal = $validated['tanggal'] ?? now()->toDateString();
 
-        DB::table('stok_barang')->insert([
-            'supplier_id' => $validated['supplier_id'],
-            'jenis' => 'masuk',
-            'jumlah' => $validated['jumlah'],
-            'tanggal' => $tanggal,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            DB::table('stok_barang')->insert([
+                'supplier_id' => $validated['supplier_id'],
+                'jenis' => 'masuk',
+                'jumlah' => $validated['jumlah'],
+                'tanggal' => $tanggal,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        DB::table('supplier')->where('id', $validated['supplier_id'])->update([
-            'tanggal_masuk' => $tanggal,
-            'updated_at' => now(),
-        ]);
+            DB::table('supplier')->where('id', $validated['supplier_id'])->update([
+                'tanggal_masuk' => $tanggal,
+                'updated_at' => now(),
+            ]);
 
-        return redirect('/stok-barang');
+            return redirect('/stok-barang')->with('sukses', 'Stok masuk berhasil dicatat.');
+        } catch (\Throwable $e) {
+            return redirect('/stok-barang')->with('gagal', 'Stok masuk gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- stokKeluar(): Mencatat transaksi stok keluar dan memperbarui harga_jual barang
@@ -111,23 +119,27 @@ class StokBarangController extends Controller
         $hargaJual = $validated['harga_jual'] ?? 0;
         $tanggal = $validated['tanggal'] ?? now()->toDateString();
 
-        if ($jumlah > 0) {
-            DB::table('supplier')->where('id', $id)->update([
-                'harga_jual' => $hargaJual,
-                'updated_at' => now(),
-            ]);
+        try {
+            if ($jumlah > 0) {
+                DB::table('supplier')->where('id', $id)->update([
+                    'harga_jual' => $hargaJual,
+                    'updated_at' => now(),
+                ]);
 
-            DB::table('stok_barang')->insert([
-                'supplier_id' => $id,
-                'jenis' => 'keluar',
-                'jumlah' => $jumlah,
-                'tanggal' => $tanggal,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+                DB::table('stok_barang')->insert([
+                    'supplier_id' => $id,
+                    'jenis' => 'keluar',
+                    'jumlah' => $jumlah,
+                    'tanggal' => $tanggal,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return redirect('/stok-barang')->with('sukses', 'Stok keluar berhasil dicatat.');
+        } catch (\Throwable $e) {
+            return redirect('/stok-barang')->with('gagal', 'Stok keluar gagal disimpan ke database. Silakan coba lagi.');
         }
-
-        return redirect('/stok-barang');
     }
 
     //----- pdfStokBarang(): Mengunduh laporan stok barang dalam format PDF

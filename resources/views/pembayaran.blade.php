@@ -10,7 +10,7 @@
         <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <h5 class="card-title mb-0">Pembayaran</h5>
             <div class="d-flex gap-2 flex-wrap no-print">
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
                 <?php if ($canExport) { ?>
                 <a href="/pembayaran/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
                 <a href="/pembayaran/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
@@ -61,7 +61,7 @@
                                 <td class="text-center">
                                     <div class="d-inline-flex gap-1 align-items-center">
                                         <?php if ($canWrite) { ?>
-                                        <a href="/edit_pembayaran/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                        <a href="/edit_pembayaran/{{ $value->id }}" class="btn btn-warning text-white fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
                                         <form action="/hapus_pembayaran/{{ $value->id }}" method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-danger btn-sm rounded-3" title="Hapus"><i class="bi bi-trash"></i></button>

@@ -95,24 +95,15 @@ class LoginController extends Controller
         return redirect('/');
     }
 
-    //----- register(): Menampilkan halaman registrasi — hanya untuk setup awal saat belum ada user sama sekali
+    //----- register(): Menampilkan halaman registrasi — untuk guest yang belum login
     public function register()
     {
-        if (DB::table('users')->count() > 0) {
-            return redirect('/login');
-        }
-
         return view('girasya');
     }
 
-    //----- simpanRegister(): Menyimpan admin pertama (hanya bisa saat tabel users masih kosong)
+    //----- simpanRegister(): Menyimpan user baru dengan role default 'mekanik'
     public function simpanRegister(Request $request)
     {
-        //----- Registrasi publik hanya untuk setup awal; setelah ada user, halaman ini ditutup
-        if (DB::table('users')->count() > 0) {
-            return redirect('/login');
-        }
-
         $validated = $request->validate([
             'u' => 'required|string|max:255',
             'e' => 'required|email|max:255|unique:users,email',
@@ -132,7 +123,7 @@ class LoginController extends Controller
             'nama' => $validated['u'],
             'email' => $validated['e'],
             'password' => Hash::make($validated['p']),
-            'role' => 'admin',
+            'role' => 'tamu',
             'no_hp' => null,
             'foto' => $fotoPath,
             'is_active' => 0,

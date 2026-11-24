@@ -11,10 +11,10 @@
             <h5 class="card-title mb-0">Stok Barang</h5>
             <div class="d-flex gap-2 flex-wrap no-print">
                 <?php if ($canWrite) { ?>
-                <a href="/input_stok_barang" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-boxes"></i> Kelola Stok</a>
+                <button type="button" class="btn btn-warning text-white fw-semibold btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#modalKelolaStok"><i class="bi bi-boxes"></i> Kelola Stok</button>
                 <button type="button" class="btn btn-primary text-white fw-semibold btn-sm rounded-pill" onclick="generateQRCode()"><i class="bi bi-qr-code"></i> Generate QR Data Masuk</button>
                 <?php } ?>
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
                 <?php if ($canExport) { ?>
                 <a href="/stok-barang/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
                 <a href="/stok-barang/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
@@ -82,7 +82,7 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
-                    <div id="qrCodeInfo" class="mt-3 text-muted small" style="display: none;">
+                    <div id="qrCodeInfo" class="mt-3 text-white-50 small" style="display: none;">
                         <p>QR Code ini berlaku selama <strong>5 menit</strong>.</p>
                         <p>Kadaluarsa dalam: <span id="countdown" class="fw-bold text-danger">05:00</span></p>
                     </div>
@@ -145,6 +145,71 @@
         const formatted = String(minutes).padStart(2, '0') + ':' + String(remainingSeconds).padStart(2, '0');
         document.getElementById('countdown').textContent = formatted;
     }
+    </script>
+
+    {{-- Modal Kelola Stok Barang --}}
+    <div class="modal fade modal-gold no-print" id="modalKelolaStok" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-boxes"></i> Kelola Stok Barang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formStokKeluar" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Pilih Barang</label>
+                                <select id="pilihBarang" class="form-select" required>
+                                    <option value="" disabled selected>-- Pilih Barang --</option>
+                                    @foreach ($supplierData as $item)
+                                        <?php
+                                            $namaBarang = 'Tanpa Nama Barang';
+                                            if ($item->nama_barang != null && $item->nama_barang != '') {
+                                                $namaBarang = $item->nama_barang;
+                                            }
+                                        ?>
+                                        <option value="{{ $item->id }}">{{ $item->nama_supplier }} - {{ $namaBarang }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Jumlah Keluar</label>
+                                <input type="number" name="jumlah" min="1" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Tanggal Keluar</label>
+                                <input type="date" name="tanggal" value="{{ date('Y-m-d') }}" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Harga Jual</label>
+                                <input type="number" name="harga_jual" min="0" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Batal</button>
+                        <button type="submit" id="btnSimpanStok" class="btn btn-danger rounded-pill" disabled><i class="bi bi-check-lg-circle"></i> Simpan Keluar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    //----- Arahkan form ke /stok-barang_keluar/{id} sesuai barang yang dipilih
+    document.getElementById('pilihBarang').addEventListener('change', function () {
+        var form = document.getElementById('formStokKeluar');
+        var btn = document.getElementById('btnSimpanStok');
+        if (this.value) {
+            form.action = '/stok-barang_keluar/' + this.value;
+            btn.disabled = false;
+        } else {
+            form.removeAttribute('action');
+            btn.disabled = true;
+        }
+    });
     </script>
 
 @endsection

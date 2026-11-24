@@ -54,27 +54,35 @@ class PenggunaController extends Controller
             'foto' => 'nullable|image|max:2048',
         ]);
 
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $file = $request->file('foto');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads'), $filename);
-            $fotoPath = $filename;
+        try {
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads'), $filename);
+                $fotoPath = $filename;
+            }
+
+            $tersimpan = DB::table('users')->insert([
+                'nama' => $validated['nama'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => $validated['role'],
+                'no_hp' => $validated['no_hp'],
+                'foto' => $fotoPath,
+                'is_active' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            if (!$tersimpan) {
+                return redirect('/pengguna')->with('gagal', 'Data pengguna gagal disimpan ke database. Silakan coba lagi.');
+            }
+
+            return redirect('/pengguna')->with('sukses', 'Data pengguna berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/pengguna')->with('gagal', 'Data pengguna gagal disimpan ke database. Silakan coba lagi.');
         }
-
-        DB::table('users')->insert([
-            'nama' => $validated['nama'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-            'no_hp' => $validated['no_hp'],
-            'foto' => $fotoPath,
-            'is_active' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return redirect('/pengguna');
     }
 
     //----- editPengguna(): Menampilkan form edit pengguna berdasarkan id

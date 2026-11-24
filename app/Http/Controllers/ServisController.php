@@ -19,7 +19,14 @@ class ServisController extends Controller
         RolePermission::cek('view:servis');
 
         //----- $rows ini yang dipakai di view servis sebagai $rows
-        return view('servis', ['rows' => $this->servisData()]);
+        //----- $pelanggan, $kendaraan, $mekanik, $jasa dipakai untuk dropdown di modal tambah servis
+        return view('servis', [
+            'rows' => $this->servisData(),
+            'pelanggan' => DB::table('pelanggan')->orderBy('nama')->get(),
+            'kendaraan' => DB::table('kendaraan')->orderBy('no_polisi')->get(),
+            'mekanik' => DB::table('mekanik')->orderBy('nama')->get(),
+            'jasa' => DB::table('jasa_servis')->orderBy('nama_jasa')->get(),
+        ]);
     }
 
     //----- servisData(): Mengambil data servis lengkap dengan pelanggan, kendaraan, mekanik, daftar jasa, dan metode pembayaran (private)
@@ -134,6 +141,7 @@ class ServisController extends Controller
             'jumlah_jasa.*' => 'integer|min:1',
         ]);
 
+        try {
         //----- Cari data user yang sedang login berdasarkan id session
         $user = DB::table('users')->where('id', session('id_user'))->first();
 
@@ -216,7 +224,10 @@ class ServisController extends Controller
             'created_at' => now(),
         ]);
 
-        return redirect('/servis');
+            return redirect('/servis')->with('sukses', 'Transaksi servis berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/servis')->with('gagal', 'Transaksi servis gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- editServis(): Menampilkan form edit servis beserta detail jasa dan pembayaran

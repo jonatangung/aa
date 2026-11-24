@@ -81,7 +81,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <small class="text-muted">Jumlah bayar dihitung otomatis dari total jasa di atas. Ubah jasa melalui menu Servis.</small>
+                        <small class="text-white-50">Jumlah bayar dihitung otomatis dari total jasa di atas. Ubah jasa melalui menu Servis.</small>
                     </div>
                 <?php } ?>
 

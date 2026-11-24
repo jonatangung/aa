@@ -10,7 +10,7 @@
             <h5 class="card-title mb-0">Manajemen Pengguna</h5>
             <div class="d-flex gap-2 flex-wrap no-print">
                 <?php if ($canWrite) { ?>
-                <a href="/tambah_users" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-person-plus"></i> Tambah Pengguna</a>
+                <button type="button" class="btn btn-warning text-white fw-semibold btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#modalTambahPengguna"><i class="bi bi-person-plus"></i> Tambah Pengguna</button>
                 <?php } ?>
             </div>
         </div>
@@ -58,7 +58,7 @@
                                 <td class="text-center">
                                     <?php if ($canWrite) { ?>
                                     <div class="d-inline-flex gap-1 align-items-center">
-                                        <a href="/edit_users/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                        <a href="/edit_users/{{ $value->id }}" class="btn btn-warning text-white fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
                                     </div>
                                     <?php } ?>
                                 </td>
@@ -66,6 +66,58 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Tambah Pengguna --}}
+    <div class="modal fade modal-gold no-print" id="modalTambahPengguna" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-plus"></i> Tambah Pengguna</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/tambah_users_aksi" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nama</label>
+                                <input type="text" name="nama" class="form-control" value="{{ old('nama') }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">No HP</label>
+                                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Role</label>
+                                <select name="role" class="form-select" required>
+                                    <option value="">-- Pilih Role --</option>
+                                    @foreach (['owner' => 'Owner', 'admin' => 'Admin', 'kasir' => 'Kasir', 'karyawan' => 'Karyawan', 'mekanik' => 'Mekanik'] as $value => $label)
+                                        <option value="{{ $value }}" @selected(old('role') == $value)>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Foto</label>
+                                <input type="file" name="foto" class="form-control" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Batal</button>
+                        <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

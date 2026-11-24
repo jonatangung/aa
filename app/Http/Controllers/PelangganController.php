@@ -53,15 +53,23 @@ class PelangganController extends Controller
             'no_hp' => 'nullable|string|max:20',
         ]);
 
-        (new database)->tambah('pelanggan', [
-            'kode_pelanggan' => 'PLG-' . now()->format('ymdHis'),
-            'nama' => $validated['nama'],
-            'alamat' => $validated['alamat'],
-            'email' => $validated['email'],
-            'no_hp' => $validated['no_hp'],
-        ]);
+        try {
+            $tersimpan = (new database)->tambah('pelanggan', [
+                'kode_pelanggan' => 'PLG-' . now()->format('ymdHis'),
+                'nama' => $validated['nama'],
+                'alamat' => $validated['alamat'],
+                'email' => $validated['email'],
+                'no_hp' => $validated['no_hp'],
+            ]);
 
-        return redirect('/pelanggan');
+            if (!$tersimpan) {
+                return redirect('/pelanggan')->with('gagal', 'Data pelanggan gagal disimpan ke database. Silakan coba lagi.');
+            }
+
+            return redirect('/pelanggan')->with('sukses', 'Data pelanggan berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/pelanggan')->with('gagal', 'Data pelanggan gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- editPelanggan(): Menampilkan form edit pelanggan berdasarkan id. Mengirim data $row ke view edit_pelanggan

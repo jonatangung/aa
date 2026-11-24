@@ -11,9 +11,9 @@
             <h5 class="card-title mb-0">Data Jasa Servis</h5>
             <div class="d-flex gap-2 flex-wrap no-print">
                 <?php if ($canWrite) { ?>
-                <a href="/tambah_jasa_servis" class="btn btn-warning text-dark fw-semibold btn-sm rounded-pill"><i class="bi bi-plus-lg-circle"></i> Tambah Jasa Servis</a>
+                <button type="button" class="btn btn-warning text-white fw-semibold btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#modalTambahJasa"><i class="bi bi-plus-lg-circle"></i> Tambah Jasa Servis</button>
                 <?php } ?>
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
                 <?php if ($canExport) { ?>
                 <a href="/jasa-servis/pdf" target="_blank" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
                 <a href="/jasa-servis/excel" class="btn btn-outline-success btn-sm rounded-pill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
@@ -55,7 +55,7 @@
                                 <td class="text-center">
                                     <div class="d-inline-flex gap-1 align-items-center">
                                         <?php if ($canWrite) { ?>
-                                        <a href="/edit_jasa_servis/{{ $value->id }}" class="btn btn-warning text-dark fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                        <a href="/edit_jasa_servis/{{ $value->id }}" class="btn btn-warning text-white fw-semibold btn-sm rounded-3" title="Edit"><i class="bi bi-pencil-square"></i></a>
                                         <form action="/hapus_jasa_servis/{{ $value->id }}" method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-danger btn-sm rounded-3" title="Hapus"><i class="bi bi-trash"></i></button>
@@ -67,6 +67,45 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Tambah Jasa Servis --}}
+    <div class="modal fade modal-gold no-print" id="modalTambahJasa" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-wrench-adjustable"></i> Tambah Jasa Servis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/tambah_jasa_servis_aksi" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nama Jasa</label>
+                                <input type="text" name="nama_jasa" class="form-control" value="{{ old('nama_jasa') }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Harga</label>
+                                <input type="number" name="harga" class="form-control" value="{{ old('harga') }}" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Estimasi Menit</label>
+                                <input type="number" name="estimasi_menit" class="form-control" value="{{ old('estimasi_menit') }}" min="0">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Deskripsi</label>
+                                <textarea name="deskripsi" class="form-control" rows="3">{{ old('deskripsi') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Batal</button>
+                        <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

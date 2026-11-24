@@ -50,6 +50,10 @@ Route::middleware(['auth', 'level:owner,admin,kasir'])->group(function () {
 Route::middleware(['auth', 'level:owner,admin,kasir,mekanik'])->group(function () {
     Route::get('/kendaraan', 'App\Http\Controllers\KendaraanController@kendaraan');
     Route::get('/servis', 'App\Http\Controllers\ServisController@servis');
+});
+
+// owner + admin + kasir + mekanik + tamu: laporan servis
+Route::middleware(['auth', 'level:owner,admin,kasir,mekanik,tamu'])->group(function () {
     Route::get('/laporan-servis', 'App\Http\Controllers\LaporanController@laporanServis');
 });
 

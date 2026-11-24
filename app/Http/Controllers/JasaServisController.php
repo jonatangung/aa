@@ -68,17 +68,25 @@ class JasaServisController extends Controller
             $kodeJasa = 'JS_' . $next;
         }
 
-        DB::table('jasa_servis')->insert([
-            'kode_jasa' => $kodeJasa,
-            'nama_jasa' => $validated['nama_jasa'],
-            'harga' => $validated['harga'],
-            'estimasi_menit' => $validated['estimasi_menit'],
-            'deskripsi' => $validated['deskripsi'],
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            $tersimpan = DB::table('jasa_servis')->insert([
+                'kode_jasa' => $kodeJasa,
+                'nama_jasa' => $validated['nama_jasa'],
+                'harga' => $validated['harga'],
+                'estimasi_menit' => $validated['estimasi_menit'],
+                'deskripsi' => $validated['deskripsi'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return redirect('/jasa-servis');
+            if (!$tersimpan) {
+                return redirect('/jasa-servis')->with('gagal', 'Data jasa servis gagal disimpan ke database. Silakan coba lagi.');
+            }
+
+            return redirect('/jasa-servis')->with('sukses', 'Data jasa servis berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/jasa-servis')->with('gagal', 'Data jasa servis gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- editJasaServis(): Menampilkan form edit jasa servis berdasarkan id. Mengirim data $row ke view edit_jasa_servis

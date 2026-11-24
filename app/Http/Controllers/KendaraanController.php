@@ -19,7 +19,14 @@ class KendaraanController extends Controller
         RolePermission::cek('view:kendaraan');
 
         // $rows ini yang dipakai di view kendaraan sebagai $rows
-        return view('kendaraan', ['rows' => $this->kendaraanData()]);
+        // $pelanggan dipakai untuk dropdown di modal tambah kendaraan
+        return view('kendaraan', [
+            'rows' => $this->kendaraanData(),
+            'pelanggan' => DB::table('pelanggan')
+                ->select('id', 'nama', 'kode_pelanggan')
+                ->orderBy('nama')
+                ->get(),
+        ]);
     }
 
     //----- kendaraanData(): Mengambil seluruh data kendaraan dari database (private). join() = gabung tabel, select() = pilih kolom, orderBy() = urutkan data, get() = ambil semua data
@@ -62,20 +69,28 @@ class KendaraanController extends Controller
             'no_mesin' => 'nullable|string|max:100',
         ]);
 
-        DB::table('kendaraan')->insert([
-            'pelanggan_id' => $validated['pelanggan_id'],
-            'no_polisi' => $validated['no_polisi'],
-            'merk' => $validated['merk'],
-            'model' => $validated['model'],
-            'tahun' => $validated['tahun'],
-            'warna' => $validated['warna'],
-            'no_rangka' => $validated['no_rangka'],
-            'no_mesin' => $validated['no_mesin'],
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            $tersimpan = DB::table('kendaraan')->insert([
+                'pelanggan_id' => $validated['pelanggan_id'],
+                'no_polisi' => $validated['no_polisi'],
+                'merk' => $validated['merk'],
+                'model' => $validated['model'],
+                'tahun' => $validated['tahun'],
+                'warna' => $validated['warna'],
+                'no_rangka' => $validated['no_rangka'],
+                'no_mesin' => $validated['no_mesin'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return redirect('/kendaraan');
+            if (!$tersimpan) {
+                return redirect('/kendaraan')->with('gagal', 'Data kendaraan gagal disimpan ke database. Silakan coba lagi.');
+            }
+
+            return redirect('/kendaraan')->with('sukses', 'Data kendaraan berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/kendaraan')->with('gagal', 'Data kendaraan gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- editKendaraan(): Menampilkan form edit kendaraan berdasarkan id. Mengirim data $row dan $pelanggan ke view edit_kendaraan

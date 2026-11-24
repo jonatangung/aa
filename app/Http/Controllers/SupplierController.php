@@ -56,33 +56,37 @@ class SupplierController extends Controller
         $harga = $validated['harga'] ?? 0;
         $tanggalMasuk = $validated['tanggal_masuk'] ?? now()->toDateString();
 
-        $supplierId = DB::table('supplier')->insertGetId([
-            'nama_supplier' => $validated['nama_supplier'],
-            'nama_barang' => $validated['nama_barang'],
-            'stok' => 0,
-            'harga' => $harga,
-            'tanggal_masuk' => $tanggalMasuk,
-            'kontak_person' => $validated['kontak_person'],
-            'no_hp' => $validated['no_hp'],
-            'email' => $validated['email'],
-            'alamat' => $validated['alamat'],
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        if ((int) ($validated['stok'] ?? 0) > 0) {
-            $tanggalStok = $validated['tanggal_masuk'] ?? now()->toDateString();
-            DB::table('stok_barang')->insert([
-                'supplier_id' => $supplierId,
-                'jenis' => 'masuk',
-                'jumlah' => $validated['stok'],
-                'tanggal' => $tanggalStok,
+        try {
+            $supplierId = DB::table('supplier')->insertGetId([
+                'nama_supplier' => $validated['nama_supplier'],
+                'nama_barang' => $validated['nama_barang'],
+                'stok' => 0,
+                'harga' => $harga,
+                'tanggal_masuk' => $tanggalMasuk,
+                'kontak_person' => $validated['kontak_person'],
+                'no_hp' => $validated['no_hp'],
+                'email' => $validated['email'],
+                'alamat' => $validated['alamat'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-        }
 
-        return redirect('/supplier');
+            if ((int) ($validated['stok'] ?? 0) > 0) {
+                $tanggalStok = $validated['tanggal_masuk'] ?? now()->toDateString();
+                DB::table('stok_barang')->insert([
+                    'supplier_id' => $supplierId,
+                    'jenis' => 'masuk',
+                    'jumlah' => $validated['stok'],
+                    'tanggal' => $tanggalStok,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return redirect('/supplier')->with('sukses', 'Data supplier berhasil ditambahkan.');
+        } catch (\Throwable $e) {
+            return redirect('/supplier')->with('gagal', 'Data supplier gagal disimpan ke database. Silakan coba lagi.');
+        }
     }
 
     //----- editSupplier(): Menampilkan form edit supplier/barang berdasarkan id. Mengirim data $row ke view edit_supplier

@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="col-12">
-                    <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill w-100"><i class="bi bi-search"></i> Pilih</button>
+                    <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill w-100"><i class="bi bi-search"></i> Pilih</button>
                 </div>
             </form>
 

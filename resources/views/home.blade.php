@@ -20,8 +20,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-person fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Data Pelanggan</h5>
-                        <p class="small text-muted mb-0">Kelola data pelanggan</p>
+                        <h5 class="mt-2 text-white">Data Pelanggan</h5>
+                        <p class="small text-white-50 mb-0">Kelola data pelanggan</p>
                     </div>
                 </div>
             </a>
@@ -34,8 +34,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-car-front fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Data Kendaraan</h5>
-                        <p class="small text-muted mb-0">Kelola data kendaraan</p>
+                        <h5 class="mt-2 text-white">Data Kendaraan</h5>
+                        <p class="small text-white-50 mb-0">Kelola data kendaraan</p>
                     </div>
                 </div>
             </a>
@@ -48,8 +48,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-person-badge fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Data Mekanik</h5>
-                        <p class="small text-muted mb-0">Kelola data Mekanik</p>
+                        <h5 class="mt-2 text-white">Data Mekanik</h5>
+                        <p class="small text-white-50 mb-0">Kelola data Mekanik</p>
                     </div>
                 </div>
             </a>
@@ -62,8 +62,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-wrench-adjustable fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Data Jasa Servis</h5>
-                        <p class="small text-muted mb-0">Kelola jenis dan harga jasa</p>
+                        <h5 class="mt-2 text-white">Data Jasa Servis</h5>
+                        <p class="small text-white-50 mb-0">Kelola jenis dan harga jasa</p>
                     </div>
                 </div>
             </a>
@@ -76,8 +76,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-truck fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Data Supplier</h5>
-                        <p class="small text-muted mb-0">Kelola data supplier</p>
+                        <h5 class="mt-2 text-white">Data Supplier</h5>
+                        <p class="small text-white-50 mb-0">Kelola data supplier</p>
                     </div>
                 </div>
             </a>
@@ -90,8 +90,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-cart-check fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Transaksi Servis</h5>
-                        <p class="small text-muted mb-0">Kelola transaksi bengkel</p>
+                        <h5 class="mt-2 text-white">Transaksi Servis</h5>
+                        <p class="small text-white-50 mb-0">Kelola transaksi bengkel</p>
                     </div>
                 </div>
             </a>
@@ -104,8 +104,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-cash-stack fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Pembayaran</h5>
-                        <p class="small text-muted mb-0">Kelola pembayaran servis</p>
+                        <h5 class="mt-2 text-white">Pembayaran</h5>
+                        <p class="small text-white-50 mb-0">Kelola pembayaran servis</p>
                     </div>
                 </div>
             </a>
@@ -118,8 +118,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-file-earmark-text fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Laporan Servis</h5>
-                        <p class="small text-muted mb-0">Lihat laporan transaksi servis</p>
+                        <h5 class="mt-2 text-white">Laporan Servis</h5>
+                        <p class="small text-white-50 mb-0">Lihat laporan transaksi servis</p>
                     </div>
                 </div>
             </a>
@@ -132,8 +132,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-bar-chart fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Laporan Pendapatan</h5>
-                        <p class="small text-muted mb-0">Lihat laporan pendapatan</p>
+                        <h5 class="mt-2 text-white">Laporan Pendapatan</h5>
+                        <p class="small text-white-50 mb-0">Lihat laporan pendapatan</p>
                     </div>
                 </div>
             </a>
@@ -146,8 +146,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-box-seam fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Stok Barang</h5>
-                        <p class="small text-muted mb-0">Kelola stok barang</p>
+                        <h5 class="mt-2 text-white">Stok Barang</h5>
+                        <p class="small text-white-50 mb-0">Kelola stok barang</p>
                     </div>
                 </div>
             </a>
@@ -160,8 +160,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-people fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Manajemen Pengguna</h5>
-                        <p class="small text-muted mb-0">Kelola akun pengguna</p>
+                        <h5 class="mt-2 text-white">Manajemen Pengguna</h5>
+                        <p class="small text-white-50 mb-0">Kelola akun pengguna</p>
                     </div>
                 </div>
             </a>
@@ -173,8 +173,8 @@
                 <div class="card shadow-sm border-0 border-top border-warning border-3 h-100">
                     <div class="card-body text-center">
                         <i class="bi bi-gear fs-1 text-warning"></i>
-                        <h5 class="mt-2 text-dark">Pengaturan Profil</h5>
-                        <p class="small text-muted mb-0">Kelola profil akun</p>
+                        <h5 class="mt-2 text-white">Pengaturan Profil</h5>
+                        <p class="small text-white-50 mb-0">Kelola profil akun</p>
                     </div>
                 </div>
             </a>

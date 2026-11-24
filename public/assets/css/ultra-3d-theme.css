@@ -157,16 +157,25 @@ h1, h2, h3, h4, h5, h6 {
    SIDEBAR - FLOATING PANEL
    ============================================ */
 .sidebar {
+  top: 94px;
+  bottom: 12px;
   background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
   backdrop-filter: blur(20px);
   margin: 12px 0 12px 16px;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-primary) transparent;
   transition: all 0.4s var(--transition-smooth);
+}
+
+.sidebar-nav {
+  padding-bottom: 20px;
 }
 
 .sidebar:hover {
@@ -229,15 +238,15 @@ h1, h2, h3, h4, h5, h6 {
 
 .sidebar-nav .nav-link:not(.collapsed) {
   background: var(--accent-gradient) !important;
-  color: #0f172a !important;
-  box-shadow: 
+  color: #ffffff !important;
+  box-shadow:
     0 4px 16px var(--accent-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   border-color: transparent;
 }
 
 .sidebar-nav .nav-link:not(.collapsed) i {
-  color: #0f172a !important;
+  color: #ffffff !important;
 }
 
 .sidebar-nav .nav-link.collapsed {
@@ -385,8 +394,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Primary Button */
 .btn-primary {
   background: var(--accent-gradient);
-  color: #0f172a;
-  box-shadow: 
+  color: #ffffff;
+  box-shadow:
     0 6px 0 #d97706,
     0 8px 20px rgba(245, 158, 11, 0.4);
 }
@@ -409,8 +418,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Warning Button */
 .btn-warning {
   background: var(--accent-gradient);
-  color: #0f172a;
-  box-shadow: 
+  color: #ffffff;
+  box-shadow:
     0 6px 0 #d97706,
     0 8px 20px rgba(245, 158, 11, 0.4);
 }
@@ -432,8 +441,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Success Button */
 .btn-success {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  color: #0f172a;
-  box-shadow: 
+  color: #ffffff;
+  box-shadow:
     0 6px 0 #059669,
     0 8px 20px rgba(16, 185, 129, 0.4);
 }
@@ -832,6 +841,85 @@ h1, h2, h3, h4, h5, h6 {
 .btn-close:hover {
   opacity: 1;
   filter: invert(1) brightness(2) drop-shadow(0 0 10px var(--accent-glow));
+}
+
+/* ============================================
+   MODAL TAMBAH DATA - BORDER EMAS STATIS
+   ============================================ */
+.modal-gold .modal-content {
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(20px);
+  border: 2px solid #d4af37;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.25),
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.15);
+}
+
+.modal-gold .modal-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 18px 24px;
+}
+
+.modal-gold .modal-title {
+  color: #fbbf24;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-gold .modal-title i {
+  color: #d4af37;
+}
+
+.modal-gold .modal-body {
+  padding: 24px;
+}
+
+.modal-gold .modal-footer {
+  border-top: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 16px 24px;
+}
+
+/* Modal notifikasi gagal - border merah */
+.modal-gagal .modal-content {
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(20px);
+  border: 2px solid #ef4444;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, 0.25),
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(239, 68, 68, 0.15);
+}
+
+.modal-gagal .modal-header {
+  border-bottom: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 18px 24px;
+}
+
+.modal-gagal .modal-title {
+  color: #f87171;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-gagal .modal-title i {
+  color: #ef4444;
+}
+
+.modal-gagal .modal-body {
+  padding: 24px;
+  color: var(--text-secondary);
+}
+
+.modal-gagal .modal-footer {
+  border-top: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 16px 24px;
 }
 
 /* ============================================

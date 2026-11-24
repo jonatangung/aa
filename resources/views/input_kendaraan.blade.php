@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="col-12 d-flex gap-2 mt-2">
-                    <button type="submit" class="btn btn-warning text-dark fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan</button>
+                    <button type="submit" class="btn btn-warning text-white fw-semibold rounded-pill"><i class="bi bi-check-lg-circle"></i> Simpan</button>
                     <a href="/kendaraan" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
             </form>

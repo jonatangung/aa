@@ -19,7 +19,8 @@ class CekLevel
             return redirect('/'); //--- Belum login, arahkan ke halaman login
         }
 
-        if (!in_array(session('role'), $roles, true)) {
+        $userRole = session('role');
+        if (!in_array($userRole, $roles, true)) {
             return redirect('/home'); //--- Level tidak sesuai
         }
 

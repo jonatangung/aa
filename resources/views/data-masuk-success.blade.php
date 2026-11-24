@@ -28,9 +28,9 @@
 
   <!-- Template Main CSS File -->
   <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
-  
+
   <!-- Ultra 3D Theme CSS -->
-  <link href="{{ asset('assets/css/ultra-3d-theme.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/css/ultra-3d-theme.css?v=2') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +58,7 @@
                 <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
               </div>
               <h4 class="card-title mb-3">Data Masuk Berhasil Ditambahkan!</h4>
-              <p class="text-muted mb-4">Terima kasih. Data stok barang telah berhasil disimpan ke sistem.</p>
+              <p class="text-white-50 mb-4">Terima kasih. Data stok barang telah berhasil disimpan ke sistem.</p>
               <div class="alert alert-info text-start">
                 <i class="bi bi-info-circle me-2"></i>
                 Link QR Code ini sudah tidak dapat digunakan lagi untuk mencegah input ganda.

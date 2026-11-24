@@ -77,9 +77,12 @@
           </a>
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li class="dropdown-header">
-              <h6>{{ session('u', 'Pengguna') }}</h6>
-              <span>Akun Pengguna</span>
+            <li class="dropdown-header profile-dropdown-header">
+              <img src="{{ $fotoUrl }}" alt="Profile" class="profile-dropdown-img">
+              <div>
+                <h6>{{ session('u', 'Pengguna') }}</h6>
+                <span>Akun Pengguna</span>
+              </div>
             </li>
             <li>
               <hr class="dropdown-divider">

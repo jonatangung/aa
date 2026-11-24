@@ -146,11 +146,120 @@ class LoginController extends Controller
                 : null;
         };
 
+        //----- Izin data untuk KPI & chart dashboard
+        $bolehPendapatan = RolePermission::boleh('view:pembayaran', $role)
+            || RolePermission::boleh('view:laporan_pendapatan', $role);
+        $bolehServis = RolePermission::boleh('view:servis', $role);
+        $bolehPelanggan = RolePermission::boleh('view:pelanggan', $role);
+
+        //----- KPI ringkasan
+        $kpi = [
+            'pendapatan_hari_ini' => $bolehPendapatan
+                ? (float) DB::table('pembayaran')->whereDate('tanggal', today())->sum('jumlah_bayar')
+                : null,
+            'pendapatan_bulan_ini' => $bolehPendapatan
+                ? (float) DB::table('pembayaran')
+                    ->whereYear('tanggal', now()->year)
+                    ->whereMonth('tanggal', now()->month)
+                    ->sum('jumlah_bayar')
+                : null,
+            'servis_aktif' => $bolehServis
+                ? DB::table('servis')->whereIn('status', ['antri', 'dikerjakan'])->count()
+                : null,
+            'total_pelanggan' => $bolehPelanggan
+                ? DB::table('pelanggan')->count()
+                : null,
+        ];
+
+        //----- Label 6 bulan terakhir (format "Nov 25") untuk sumbu X chart
+        $bulanLabels = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $bulanLabels[] = now()->subMonths($i)->locale('id')->translatedFormat('M y');
+        }
+
+        //----- Helper: ubah hasil groupBy YYYY-MM menjadi array 6 bulan berurutan (bulan tanpa data = 0)
+        $runtun6Bulan = function ($grouped) use ($bulanLabels) {
+            $keys = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $keys[] = now()->subMonths($i)->format('Y-m');
+            }
+            $data = [];
+            foreach ($keys as $key) {
+                $data[] = (float) ($grouped[$key] ?? 0);
+            }
+            return $data;
+        };
+
+        //----- Chart data (null = tidak ditampilkan untuk role ini)
+        $chartData = [
+            //----- Pendapatan per bulan dari tabel pembayaran
+            'pendapatan_bulanan' => $bolehPendapatan ? [
+                'labels' => $bulanLabels,
+                'series' => [$runtun6Bulan(
+                    DB::table('pembayaran')
+                        ->selectRaw("DATE_FORMAT(tanggal, '%Y-%m') as bulan, SUM(jumlah_bayar) as total")
+                        ->where('tanggal', '>=', now()->subMonths(5)->startOfMonth())
+                        ->groupBy('bulan')
+                        ->pluck('total', 'bulan')
+                )],
+            ] : null,
+
+            //----- Jumlah servis per status
+            'status_servis' => $bolehServis ? [
+                'labels' => ['Antri', 'Dikerjakan', 'Selesai', 'Diambil', 'Batal'],
+                'series' => [
+                    (int) (DB::table('servis')->where('status', 'antri')->count() ?: 0),
+                    (int) (DB::table('servis')->where('status', 'dikerjakan')->count() ?: 0),
+                    (int) (DB::table('servis')->where('status', 'selesai')->count() ?: 0),
+                    (int) (DB::table('servis')->where('status', 'diambil')->count() ?: 0),
+                    (int) (DB::table('servis')->where('status', 'batal')->count() ?: 0),
+                ],
+            ] : null,
+
+            //----- Jumlah servis masuk per bulan
+            'servis_bulanan' => $bolehServis ? [
+                'labels' => $bulanLabels,
+                'series' => [$runtun6Bulan(
+                    DB::table('servis')
+                        ->selectRaw("DATE_FORMAT(tanggal_masuk, '%Y-%m') as bulan, COUNT(*) as total")
+                        ->where('tanggal_masuk', '>=', now()->subMonths(5)->startOfMonth())
+                        ->groupBy('bulan')
+                        ->pluck('total', 'bulan')
+                )],
+            ] : null,
+
+            //----- Pendapatan per metode pembayaran
+            'metode_pembayaran' => $bolehPendapatan ? [
+                'labels' => ['Tunai', 'Transfer', 'QRIS', 'Debit', 'Kredit'],
+                'series' => [
+                    (float) (DB::table('pembayaran')->where('metode', 'tunai')->sum('jumlah_bayar') ?: 0),
+                    (float) (DB::table('pembayaran')->where('metode', 'transfer')->sum('jumlah_bayar') ?: 0),
+                    (float) (DB::table('pembayaran')->where('metode', 'qris')->sum('jumlah_bayar') ?: 0),
+                    (float) (DB::table('pembayaran')->where('metode', 'debit')->sum('jumlah_bayar') ?: 0),
+                    (float) (DB::table('pembayaran')->where('metode', 'kredit')->sum('jumlah_bayar') ?: 0),
+                ],
+            ] : null,
+
+            //----- Pelanggan baru per bulan
+            'pelanggan_bulanan' => $bolehPelanggan ? [
+                'labels' => $bulanLabels,
+                'series' => [$runtun6Bulan(
+                    DB::table('pelanggan')
+                        ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+                        ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+                        ->groupBy('bulan')
+                        ->pluck('total', 'bulan')
+                )],
+            ] : null,
+        ];
+
         return view('home', [
             'pelanggan' => $countIfCanView('pelanggan', 'pelanggan'),
             'kendaraan' => $countIfCanView('kendaraan', 'kendaraan'),
             'mekanik' => $countIfCanView('mekanik', 'mekanik'),
             'servis' => $countIfCanView('servis', 'servis'),
+            'kpi' => $kpi,
+            'chartData' => $chartData,
         ]);
     }
 }

@@ -5,9 +5,9 @@
 
 <main id="main" class="main">
     @unless (request()->is('home'))
-        <div class="no-print mb-3">
-            <a href="/home" class="btn btn-warning text-white fw-semibold rounded-pill btn-sm">
-                <i class="bi bi-arrow-left"></i> Kembali ke Dashboard
+        <div class="no-print back-dashboard-btn">
+            <a href="/home" class="btn btn-warning text-white fw-semibold rounded-pill shadow">
+                <i class="bi bi-arrow-left"></i> Dashboard
             </a>
         </div>
     @endunless

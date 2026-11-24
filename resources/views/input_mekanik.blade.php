@@ -1,8 +1,5 @@
 @extends('template')
 
-@section('back_url', '/mekanik')
-@section('back_text', 'Kembali')
-
 @section('content')
 {{-- Halaman form tambah mekanik baru. Data dikirim ke MekanikController method aksi_tkry() --}}
 

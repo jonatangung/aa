@@ -28,6 +28,9 @@
 
   <!-- Template Main CSS File -->
   <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+  
+  <!-- Ultra 3D Theme CSS -->
+  <link href="{{ asset('assets/css/ultra-3d-theme.css') }}" rel="stylesheet">
 </head>
 
 <body>

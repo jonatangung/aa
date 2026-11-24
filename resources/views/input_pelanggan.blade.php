@@ -1,8 +1,5 @@
 @extends('template')
 
-@section('back_url', '/pelanggan')
-@section('back_text', 'Kembali')
-
 @section('content')
 {{-- Halaman form tambah pelanggan baru. Data dikirim ke PelangganController method aksi_tplg() --}}
 

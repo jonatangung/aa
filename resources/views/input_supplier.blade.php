@@ -1,8 +1,5 @@
 @extends('template')
 
-@section('back_url', '/supplier')
-@section('back_text', 'Kembali')
-
 @section('content')
 {{-- Halaman form tambah supplier baru. Data dikirim ke SupplierController method simpanSupplier() --}}
 

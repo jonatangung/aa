@@ -1,8 +1,5 @@
 @extends('template')
 
-@section('back_url', '/stok-barang')
-@section('back_text', 'Kembali')
-
 @section('content')
 {{-- Halaman kelola stok barang (masuk & keluar). Data $supplierData dan $selectedBarang dikirim dari StokBarangController method inputStokBarang() --}}
 

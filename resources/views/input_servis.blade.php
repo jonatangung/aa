@@ -1,8 +1,5 @@
 @extends('template')
 
-@section('back_url', '/servis')
-@section('back_text', 'Kembali')
-
 @section('content')
 {{-- Halaman form tambah transaksi servis baru. Data $pelanggan, $kendaraan, $mekanik, $jasa dikirim dari ServisController method tambahServis(). Data dikirim ke method simpanServis() --}}
 
